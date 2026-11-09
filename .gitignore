@@ -24,3 +24,4 @@ logs/
 # 参考仓库（仅本地分析用，不入库）
 _ref/
 _ref_mechanical/
+dist/
