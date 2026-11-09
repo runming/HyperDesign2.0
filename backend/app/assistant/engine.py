@@ -101,6 +101,9 @@ class Assistant:
         if re.search(r"定型|定稿|冻结|就这样|确认方案", text):
             return self._finalize()
 
+        if re.search(r"修复|修好|能不能修|自愈|自动修", text):
+            return self._repair()
+
         if self.s.stage == "brief" and re.search(r"设计|做一?个|外壳|上盖|支架|传感器|包络|尺寸", text):
             return self._brief(text)
 
@@ -267,6 +270,33 @@ class Assistant:
                       f"建议一并调整（例如高厚比超限时抬高壁厚）。")
         return self._reply(reply, kind="modified", changed=changed, feasibility=fea,
                            build=build, verdict=verdict, evidence=evidence, standards=standards)
+
+    # ---------------------------------------------------------------- 中期：证据驱动修复
+    def _repair(self) -> Dict[str, Any]:
+        from ..harness.repair import auto_repair
+        before = dict(self.s.params)
+        res = auto_repair(self.s.ir, max_rounds=2)
+        chain = []
+        for at in res["attempts"]:
+            acts = "；".join(f"{a['param']} {a['before']}→{a['after']}" for a in at["actions"]) or "—"
+            chain.append(f"第{at['round']}轮 {at['verdict']}"
+                         + (f"（{','.join(at['failed'])}）" if at["failed"] else "")
+                         + f"：{acts}")
+        if res["ok"]:
+            self.s.ir = res["ir"]
+            changed = [{"key": k, "from": before.get(k), "to": v}
+                       for k, v in res["ir"]["parameters"].items() if before.get(k) != v]
+            reply = ("已按工程证据自动修复：" + "、".join(
+                f"{c['key']} {c['from']}→{c['to']}" for c in changed)
+                + "。\n修复过程：" + "；".join(chain) + "\n重建通过且准入全绿。")
+            return self._reply(reply, kind="repaired", changed=changed,
+                               build={"ok": True}, verdict="passed",
+                               repair_attempts=res["attempts"])
+        reply = ("修复未成功，已保持原参数不动。过程：" + "；".join(chain)
+                 + "\n未通过项：" + "、".join(res["attempts"][-1]["failed"]) +
+                 "。这类问题需要人工判断（例如模型本身与目标尺寸不符）。")
+        return self._reply(reply, kind="repair_failed", repair_attempts=res["attempts"],
+                           build={"ok": False}, verdict=res["attempts"][-1]["verdict"])
 
     # ---------------------------------------------------------------- 后期：定型
     def _finalize(self) -> Dict[str, Any]:
