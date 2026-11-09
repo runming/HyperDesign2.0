@@ -86,14 +86,37 @@ def build_cards():
         ("Agent 只决策 / Skill 只执行 / Harness 只裁决 / IR 只承载数据", YELLOW, 26),
     ]))
 
-    out.append(card("c04_gates", "六道工程门禁（全部 PASS）", [
-        ("M0 几何表示与解释器   8/8   体积偏差 0.0000% · 包络 120.0×80.0×45.0mm · 拔模 1.8°", GREEN, 28),
-        ("M1 准入规则与智能体 13/13   17 条规则带条款引用 · 缺失指标判 invalid", GREEN, 28),
-        ("M2 工作流与事件流     8/8   物理不通过 → 审批门 skipped · 事件序号单调", GREEN, 28),
-        ("M3 交互界面（真浏览器） 9/9   HUD 实测 120.00×80.00×45.00mm · Z=0.000", GREEN, 28),
-        ("M4 数值仿真           7/7   梁误差 0.0000% · 圆孔 Kt=3.128（理论 3.0）", GREEN, 28),
-        ("M5 知识资产           10/10  角色可见 1/6/7 篇 · 无证据即拒答", GREEN, 28),
+    out.append(card("c04_gates", "七道工程门禁（全部 PASS）", [
+        ("M0 几何表示与解释器   8/8   体积偏差 0.0000% · 包络 120.0×80.0×45.0mm · 拔模 1.8°", GREEN, 26),
+        ("M1 准入规则与智能体 13/13   17 条规则带条款引用 · 缺失指标判 invalid", GREEN, 26),
+        ("M2 工作流与事件流     8/8   物理不通过 → 审批门 skipped · 事件序号单调", GREEN, 26),
+        ("M3 交互界面（真浏览器） 9/9   HUD 实测 120.00×80.00×45.00mm · Z=0.000", GREEN, 26),
+        ("M4 数值仿真           7/7   梁误差 0.0000% · 圆孔 Kt=3.128（理论 3.0）", GREEN, 26),
+        ("M5 知识资产           10/10  角色可见 1/6/7 篇 · 无证据即拒答", GREEN, 26),
+        ("M7 可行性与复用       10/10  R3.0 判不可行→修复 4.1 通过 · 同引擎建 CNC 支架", GREEN, 26),
     ], "每道门禁都有独立脚本与报告，任何人可在本机复跑"))
+
+    out.append(card("c07_repair", "设计不可行时，不只报错", [
+        ("外角 R = 3.0mm，高度 45mm，拔模 1.8°，壁厚 2.4mm", FG, 30),
+        ("顶面内角半径 = R − H·tan d − wall/cos d = −0.82mm  → 判不可行", RED, 30),
+        ("真实内核复现同一失败：顶部内角半径只有 −0.740mm", DIM, 26),
+        ("", DIM, 16),
+        ("反解：R ≥ 4.02mm，取 4.1mm（同时受顶面平台约束）", YELLOW, 28),
+        ("重建结果：体积 67,585.3mm³ · 包络 120×80×45 · 拔模 1.8° · 准入全绿", GREEN, 28),
+        ("", DIM, 14),
+        ("同一引擎换 IR 与规则包 → 直接建出 CNC 支架（80×40×44，18,789mm³）", FG, 26),
+    ]))
+
+    out.append(card("c08_timing", "同一台工作站的分环节耗时账", [
+        ("工艺检索与铁律校验   75.9s（整段大模型推理） → 0.02s 检索 + 毫秒级规则判定", FG, 26),
+        ("建模 + 几何校验      465.8s（每次重跑都要生成代码） → 2.5s（确定性执行）", GREEN, 28),
+        ("概念图 4 张 554s ／ 三维重建 17~32s ／ 清洗 9s ／ 工程图 12s", DIM, 24),
+        ("", DIM, 16),
+        ("端到端（不含冷启动）：21.6 分钟 → 13.8 分钟（减少 36%）", ACCENT, 30),
+        ("且 2.0 的建模结果可复现：两次重建体积偏差 0.0000%", GREEN, 26),
+        ("", DIM, 14),
+        ("诚实说明：总耗时仍由生成式环节主导，收益集中在建模—校验段", DIM, 22),
+    ]))
 
     out.append(card("c05_cae", "自研有限元（零外部依赖）", [
         ("梁单元：Euler-Bernoulli + Hermite 三次形函数", FG, 30),
@@ -120,18 +143,21 @@ SEGMENTS = []   # (path, seconds)
 
 
 def film(cards):
+    by = {p.stem[:3]: p for p in cards}
     S = SEGMENTS
-    S.append((cards[0], 6.0))
-    S.append((cards[1], 9.0))
-    S.append((cards[2], 8.0))
+    S.append((by["c01"], 6.0))
+    S.append((by["c02"], 9.0))
+    S.append((by["c03"], 8.0))
     S.append((SHOTS / "s2_compliant_3d.png", 7.0))     # 三维 + 工作流
     S.append((SHOTS / "s4_rules_passed.png", 7.0))     # 规则取证 + CAE
     S.append((SHOTS / "s6_v1mesh_failed.png", 6.0))    # 物理否决
     S.append((SHOTS / "s8_kb_search.png", 6.0))        # 知识检索
     S.append((SHOTS / "s9_kb_rbac.png", 5.0))          # RBAC + 拒答
-    S.append((cards[3], 8.0))
-    S.append((cards[4], 7.0))
-    S.append((cards[5], 6.0))
+    S.append((by["c04"], 9.0))                          # 七道门禁
+    S.append((by["c05"], 7.0))                          # CAE
+    S.append((by["c07"], 8.0))                          # 可行性修复 + 跨产品族
+    S.append((by["c08"], 8.0))                          # 工时账
+    S.append((by["c06"], 6.0))                          # 交付与落地
     return S
 
 
