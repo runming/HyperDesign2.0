@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>HyperDesign 2.0 一页纸速览</title>
+<style>
+  @page { size: A4; margin: 12mm 12mm 10mm 12mm; }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #14212c; font-size: 8.9pt; line-height: 1.55; margin: 0; }
+  h1 { font-size: 15pt; margin: 0 0 1px; color: #0d1b2a; }
+  .sub { font-size: 9.2pt; color: #47606f; margin-bottom: 6px; }
+  .row { display: flex; gap: 8px; margin-bottom: 6px; }
+  .box { flex: 1; border: 1px solid #cfdde8; border-radius: 5px; padding: 6px 8px; background: #fbfdfe; }
+  .box h2 { font-size: 9.2pt; margin: 0 0 3px; color: #0a5f8f; border-left: 3px solid #00a8ff; padding-left: 5px; }
+  .kpi { display: flex; gap: 6px; margin: 6px 0; }
+  .kpi div { flex: 1; background: #0d1b2a; color: #e6eef6; border-radius: 5px; padding: 5px 7px; }
+  .kpi b { display: block; font-size: 12.5pt; color: #63d2ff; }
+  .kpi span { font-size: 7.6pt; color: #a9c4d8; }
+  ul { margin: 2px 0 0 0; padding-left: 14px; }
+  li { margin: 1.5px 0; }
+  table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 8.2pt; }
+  th { background: #0d1b2a; color: #fff; text-align: left; padding: 3px 5px; }
+  td { border-bottom: 1px solid #dde7ef; padding: 3px 5px; vertical-align: top; }
+  .tag { display: inline-block; background: #e8f4fd; color: #0a6ea8; border: 1px solid #b9dcf3; border-radius: 9px; padding: 0 6px; font-size: 7.6pt; margin-right: 3px; }
+  .muted { color: #61727f; font-size: 7.8pt; }
+  .num { color: #0a6ea8; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<h1>HyperDesign 2.0 · 一页纸速览</h1>
+<div class="sub">面向制造落地的自进化工业设计智能体平台 —— 设计可信度来自几何真实存在，而非像素逼真</div>
+<div>
+  <span class="tag">全本地部署</span><span class="tag">受控几何中间表示</span><span class="tag">工艺规则可审计</span>
+  <span class="tag">物理信号一票否决</span><span class="tag">自研有限元</span><span class="tag">知识资产 + RBAC</span>
+  <span class="tag">单机 16GB 可跑</span>
+</div>
+
+<div class="kpi">
+  <div><b>0.0000%</b><span>两次重建体积偏差（确定性）</span></div>
+  <div><b>120.0×80.0×45.0</b><span>实测包络 mm，偏差 0，Z_min=0</span></div>
+  <div><b>1.8°</b><span>B-Rep 实测最小拔模，零度直壁 0 处</span></div>
+  <div><b>Kt=3.128</b><span>带孔板应力集中（理论 3.0，误差 4.25%）</span></div>
+  <div><b>465.8s→2.5s</b><span>建模—校验段耗时（1.0→2.0）</span></div>
+</div>
+
+<div class="row">
+  <div class="box">
+    <h2>四类行业痛点</h2>
+    <ul>
+      <li>像素幻觉与工程现实脱节：生图好看，网格不可制造</li>
+      <li>DFM 约束缺失：不懂企业机台的壁厚/拔模/折弯扣除</li>
+      <li>跨模态试错贵：视觉比例无法无损还原为参数化实体</li>
+      <li>数据与进化两难：工艺资产不能上云，经验无法沉淀</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h2>六层架构（五类抽象）</h2>
+    <ul>
+      <li><b>L5 交互</b> 零构建 Studio：工作流 / 三维 / 规则取证 / 知识库 / 审批</li>
+      <li><b>L4 编排</b> 工作流引擎（DAG、事件流 seq、SSE、审批门、幂等）</li>
+      <li><b>L3 约束</b> 准入规则引擎 + 技能注册表（允许列表）</li>
+      <li><b>L2 表示</b> CAD-IR（参数/特征/语义引用/禁止任意代码）</li>
+      <li><b>L1 能力</b> 检索 · 概念发散 · 重建 · 测厚 · FEM · 国标制图</li>
+      <li><b>L0 资产</b> 知识文档 · 版本 · 审计 · 八级关联标识</li>
+    </ul>
+    <div class="muted">Agent 只决策 / Skill 只执行 / Harness 只裁决 / IR 只承载数据</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="box">
+    <h2>六道工程门禁（全部可复跑）</h2>
+    <table>
+      <tr><th style="width:30%">门禁</th><th style="width:14%">结果</th><th>关键证据</th></tr>
+      <tr><td>M0 几何与解释器</td><td>8/8</td><td>确定性 0.0000%；拔模 1.8°；<code>execute_script</code> 被拒</td></tr>
+      <tr><td>M1 准入与智能体</td><td>13/13</td><td>17 条规则带条款引用；指标缺失判 invalid</td></tr>
+      <tr><td>M2 工作流与事件</td><td>8/8</td><td>物理不通过→审批门 skipped；事件单调可回放</td></tr>
+      <tr><td>M3 交互（真浏览器）</td><td>9/9</td><td>HUD 实测 120.00×80.00×45.00；19 条规则取证</td></tr>
+      <tr><td>M4 数值仿真</td><td>7/7</td><td>梁误差 0.0000%；圆孔 Kt=3.128</td></tr>
+      <tr><td>M5 知识资产</td><td>10/10</td><td>三角色可见 1/6/7；无证据即拒答</td></tr>
+    </table>
+  </div>
+  <div class="box">
+    <h2>与同类方案的差异</h2>
+    <table>
+      <tr><th style="width:34%">能力</th><th style="width:22%">同类平台</th><th>本项目</th></tr>
+      <tr><td>智能体/技能/准入</td><td>有</td><td>同等严谨 + 条款引用</td></tr>
+      <tr><td>物理可制造性</td><td>规则阈值</td><td>射线测厚 + B-Rep 拔模场</td></tr>
+      <tr><td>仿真</td><td>外部求解器</td><td>自研 FEM，强制对标</td></tr>
+      <tr><td>生成式造型</td><td>无</td><td>概念→三维→毫米对齐</td></tr>
+      <tr><td>模型自进化</td><td>无</td><td>偏好样本 + 守门员</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="box">
+    <h2>落地可行性</h2>
+    <ul>
+      <li>单张 16GB 消费级显卡；全部推理与几何计算本地执行，断网可跑</li>
+      <li>交互层零构建静态页（本地 vendored 三维库），拷走即用</li>
+      <li>输出 STEP / DXF / PDF，直接进入既有 CAD、CAM、质检流程</li>
+      <li>数据不出内网；RBAC；审计事件；产物下载白名单与路径加固</li>
+    </ul>
+  </div>
+  <div class="box">
+    <h2>材料清单</h2>
+    <ul>
+      <li>申报书（官方模板，20 页 / 仿宋GB2312 五号 / 6 表 3 图）</li>
+      <li>作品介绍 PDF（6 页）</li>
+      <li>演示视频（1080p / 75 秒）</li>
+      <li>代码仓库（82 文件 / 4.05MB，含六道门禁脚本与报告）</li>
+      <li>门禁报告 7 份 + 界面实测截图 9 张</li>
+    </ul>
+  </div>
+</div>
+
+<div class="muted" style="margin-top:4px">
+  已知限制如实披露：生成式白模不水密、壁厚与拔模不可控，系统将其降级为造型锚点；偏好进化需 50~100 条样本；
+  部分规划组件在本机不可用已替换并逐条记录（24 条）；市场数据待试点核验。
+</div>
+
+</body>
+</html>
