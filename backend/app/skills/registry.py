@@ -224,6 +224,26 @@ def _skill_kb_search(payload: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _skill_feasibility_check(payload: Dict[str, Any]) -> Dict[str, Any]:
+    from ..cadir.feasibility import HousingParams, evaluate
+    p = HousingParams(**{k: float(v) for k, v in payload.items()
+                         if k in ("length_mm", "width_mm", "height_mm", "wall_mm",
+                                  "draft_deg", "corner_r_mm")})
+    out = evaluate(p)
+    out["ok"] = True          # 判定本身成功；是否可行看 feasible
+    return out
+
+
+def _skill_feasibility_repair(payload: Dict[str, Any]) -> Dict[str, Any]:
+    from ..cadir.feasibility import HousingParams, suggest_repair
+    p = HousingParams(**{k: float(v) for k, v in payload.items()
+                         if k in ("length_mm", "width_mm", "height_mm", "wall_mm",
+                                  "draft_deg", "corner_r_mm")})
+    out = suggest_repair(p)
+    out["ok"] = True
+    return out
+
+
 def build_default_registry() -> SkillRegistry:
     reg = SkillRegistry()
     reg.register(Skill(key="cad.ir.build", version="1.0.0",
@@ -257,4 +277,16 @@ def build_default_registry() -> SkillRegistry:
                        description="私有工艺知识库混合检索（BM25+向量+RRF），带引用溯源与 RBAC 过滤",
                        handler=_skill_kb_search, required=["query"],
                        optional=["role", "top_k"], tags=["knowledge", "rag"]))
+    reg.register(Skill(key="cad.feasibility.check", version="1.0.0",
+                       description="设计空间可行性判定（拔模/壁厚/圆角联合约束），返回逐条依据与违反项",
+                       handler=_skill_feasibility_check,
+                       required=["length_mm", "width_mm", "height_mm", "wall_mm",
+                                 "draft_deg", "corner_r_mm"],
+                       tags=["cad", "dfm"]))
+    reg.register(Skill(key="cad.feasibility.repair", version="1.0.0",
+                       description="给出最小改动的参数修复建议（调圆角→调高度→调壁厚），带每步理由",
+                       handler=_skill_feasibility_repair,
+                       required=["length_mm", "width_mm", "height_mm", "wall_mm",
+                                 "draft_deg", "corner_r_mm"],
+                       tags=["cad", "dfm"]))
     return reg

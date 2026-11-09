@@ -1,0 +1,109 @@
+{
+  "pack_id": "bracket.cad-integrity",
+  "version": "1.0.0",
+  "stage": "cad",
+  "part_type": "cnc_bracket",
+  "source": "GB/T 1804-m + 机加工件内控（无拔模要求，因为是铣削件而非注塑件）",
+  "process_context": {
+    "min_plate_t_mm": 3.0,
+    "max_plate_t_mm": 8.0
+  },
+  "rules": [
+    {
+      "rule_id": "cad.brep.valid",
+      "title": "B-Rep 拓扑合法",
+      "severity": "critical",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.is_valid"}, "right": {"const": true}},
+      "message": "实体拓扑非法，不可交付",
+      "suggested_action": "检查布尔顺序与孔位是否与边界相交",
+      "citation": {"document": "交付验收内控", "clause": "B-Rep 有效性"}
+    },
+    {
+      "rule_id": "cad.solid.single",
+      "title": "单一实体",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.solids"}, "right": {"const": 1}},
+      "message": "实体数不为 1：底板与立板未合并",
+      "suggested_action": "检查 fuse 特征位置是否接触",
+      "citation": {"document": "交付验收内控", "clause": "预期实体数"}
+    },
+    {
+      "rule_id": "cad.envelope.x",
+      "title": "X 向包络 = 设计值",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.x", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.x", "unit": "mm"},
+        "tolerance": 0.5
+      },
+      "message": "X 向包络偏离设计值",
+      "suggested_action": "校正底板长度",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差"}
+    },
+    {
+      "rule_id": "cad.envelope.y",
+      "title": "Y 向包络 = 设计值",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.y", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.y", "unit": "mm"},
+        "tolerance": 0.5
+      },
+      "message": "Y 向包络偏离设计值",
+      "suggested_action": "校正底板宽度",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差"}
+    },
+    {
+      "rule_id": "cad.envelope.z",
+      "title": "Z 向包络 = 设计值",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.z", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.z", "unit": "mm"},
+        "tolerance": 0.5
+      },
+      "message": "Z 向包络偏离设计值（立板高度不对）",
+      "suggested_action": "校正立板高度与底板厚度叠加",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差"}
+    },
+    {
+      "rule_id": "cad.seat.flat",
+      "title": "底面坐平 Z=0",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "near", "left": {"metric": "cad.z_min", "unit": "mm"},
+                "right": {"const": 0.0, "unit": "mm"}, "tolerance": 0.01},
+      "message": "底面未坐平，装夹基准不成立",
+      "suggested_action": "平移实体",
+      "citation": {"document": "内部建模规范", "clause": "底面坐平 Z=0"}
+    },
+    {
+      "rule_id": "cad.volume.sane",
+      "title": "体积在合理区间（底板+立板）",
+      "severity": "warning",
+      "stage": "cad",
+      "blocking": false,
+      "check": {
+        "op": "between",
+        "left": {"metric": "cad.volume_mm3", "unit": "mm³"},
+        "right": {"const": [10000, 60000]}
+      },
+      "message": "体积异常，可能漏特征或多料",
+      "citation": {"document": "交付验收内控", "clause": "体积合理性提示"}
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # M2 门禁报告 · 工作流引擎（DAG / 事件流 / 审批门）
 
-- 时间：2026-11-10 00:55:53
+- 时间：2026-11-10 01:27:00
 - 结论：**通过**
 - 工作流：`housing.design-to-delivery@1.0.0`（4 节点：CAD 构建 → CAD Harness → 网格 DFM Harness → 人工审批）
 
@@ -22,15 +22,15 @@
 | 1 | run.created | - | {"workflow": "housing.design-to-delivery", "version": "1.1.0"} |
 | 2 | run.started | - | {} |
 | 3 | node.started | n1_cad_build | {"type": "skill", "skill": "cad.ir.build"} |
-| 4 | node.finished | n1_cad_build | {"status": "ok", "elapsed_ms": 2197} |
+| 4 | node.finished | n1_cad_build | {"status": "ok", "elapsed_ms": 2108} |
 | 5 | node.started | n2_cad_harness | {"type": "harness", "skill": "backend/app/harness/rules/housing_cad.v1.json"} |
 | 6 | node.finished | n2_cad_harness | {"status": "ok", "elapsed_ms": 3} |
 | 7 | node.started | n3_mesh_dfm | {"type": "harness", "skill": "backend/app/harness/rules/housing_mesh.v1.json"} |
 | 8 | node.finished | n3_mesh_dfm | {"status": "ok", "elapsed_ms": 0} |
 | 9 | node.started | n3b_cae | {"type": "skill", "skill": "cae.hole.plate"} |
-| 10 | node.finished | n3b_cae | {"status": "ok", "elapsed_ms": 244} |
+| 10 | node.finished | n3b_cae | {"status": "ok", "elapsed_ms": 335} |
 | 11 | node.started | n3c_cae_harness | {"type": "harness", "skill": "backend/app/harness/rules/housing_cae.v1.json"} |
-| 12 | node.finished | n3c_cae_harness | {"status": "ok", "elapsed_ms": 1} |
+| 12 | node.finished | n3c_cae_harness | {"status": "ok", "elapsed_ms": 0} |
 | 13 | run.approval_required | n4_human_approval | {"role": "mechanical_engineer", "title": "⑥ 人工验收（工程师签字放行）"} |
 | 14 | run.approved | - | {"approver": "张工", "comment": "几何与工艺均达标，放行"} |
 | 15 | run.started | - | {} |

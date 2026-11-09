@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "document": {
+    "type": "part",
+    "name": "sensor_mount_bracket",
+    "unit": "mm",
+    "revision": "M8",
+    "description": "传感器安装支架（铝合金 CNC 件，非注塑件）：80×40 底板 + 40 高立板，底面孔位 2×Ø6.6，立板孔 1×Ø6.6"
+  },
+  "parameters": {
+    "BASE_L": 80.0,
+    "BASE_W": 40.0,
+    "PLATE_T": 4.0,
+    "LEG_H": 40.0,
+    "HOLE_D": 6.6,
+    "HOLE_INSET_Y": 0.0
+  },
+  "features": [
+    {
+      "id": "b1_base",
+      "type": "create_box",
+      "depends_on": [],
+      "params": {"length": "BASE_L", "width": "BASE_W", "height": "PLATE_T",
+                 "center": "origin_bottom_center"},
+      "semantic": {"body": "body", "bottom_face": "seat_face"}
+    },
+    {
+      "id": "b2_leg",
+      "type": "fuse",
+      "depends_on": ["b1_base"],
+      "params": {
+        "primitive": "box",
+        "length": "PLATE_T",
+        "width": "BASE_W",
+        "height": "LEG_H",
+        "at": [-40.0, -20.0, 4.0]
+      },
+      "semantic": {"fused": "vertical_leg"}
+    },
+    {
+      "id": "b3_base_holes",
+      "type": "add_hole_pattern",
+      "depends_on": ["b2_leg"],
+      "params": {
+        "diameter": "HOLE_D",
+        "depth": "through",
+        "axis": "Z",
+        "positions": {"type": "explicit", "points": [[25.0, 0.0], [-5.0, 0.0]]}
+      },
+      "semantic": {"holes": "base_mount_holes"}
+    },
+    {
+      "id": "b4_leg_hole",
+      "type": "add_hole_pattern",
+      "depends_on": ["b3_base_holes"],
+      "params": {
+        "diameter": "HOLE_D",
+        "depth": "through",
+        "axis": "X",
+        "positions": {"type": "explicit", "points": [[0.0, 0.0, 28.0]]}
+      },
+      "semantic": {"holes": "leg_mount_hole"}
+    }
+  ],
+  "outputs": ["step", "stl"],
+  "metadata": {
+    "generated_by": "hyperdesign2.cadir (M8)",
+    "process": "CNC 铣削（6061-T6）",
+    "note": "同一套解释器与工作流，仅替换 IR 与规则包——用于验证跨产品族可复制性"
+  }
+}

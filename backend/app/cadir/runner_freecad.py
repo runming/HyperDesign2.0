@@ -286,20 +286,23 @@ def op_add_hole_pattern(shape, feat, params):
     if not pts:
         raise ValueError("hole 需要 positions")
     axis = p.get("axis", "Z")
+    if axis not in ("X", "Y", "Z"):
+        raise ValueError(f"hole.axis 只能是 X/Y/Z（得到 {axis}）")
     bb = shape.BoundBox
-    span = (bb.ZLength if axis == "Z" else (bb.XLength if axis == "X" else bb.YLength))
+    span = {"Z": bb.ZLength, "X": bb.XLength, "Y": bb.YLength}[axis]
     h = span + 2.0 if depth == "through" else _num(depth, params, "hole.depth")
+    # 直接用 makeCylinder 的方向参数建轴向孔（rotate(axis=零向量) 会抛 gp_Dir 零范数错误）
+    direction = {"X": FreeCAD.Vector(1, 0, 0), "Y": FreeCAD.Vector(0, 1, 0),
+                 "Z": FreeCAD.Vector(0, 0, 1)}[axis]
     for pt in pts:
         if axis == "Z":
-            cyl = Part.makeCylinder(d / 2.0, h, FreeCAD.Vector(pt.x, pt.y, bb.ZMin - 1.0))
+            base = FreeCAD.Vector(pt.x, pt.y, bb.ZMin - 1.0)
         elif axis == "X":
-            cyl = Part.makeCylinder(d / 2.0, h, FreeCAD.Vector(bb.XMin - 1.0, pt.y, pt.z))
-            cyl.rotate(FreeCAD.Vector(bb.XMin - 1.0, pt.y, pt.z), FreeCAD.Vector(0, 0, 0), 90)
+            base = FreeCAD.Vector(bb.XMin - 1.0, pt.y, pt.z)
         else:
-            cyl = Part.makeCylinder(d / 2.0, h, FreeCAD.Vector(pt.x, bb.YMin - 1.0, pt.z))
-            cyl.rotate(FreeCAD.Vector(pt.x, bb.YMin - 1.0, pt.z), FreeCAD.Vector(0, 0, 1), 90)
-        shape = shape.cut(cyl)
-    return shape, {"holes": f"count:{len(pts)}"}
+            base = FreeCAD.Vector(pt.x, bb.YMin - 1.0, pt.z)
+        shape = shape.cut(Part.makeCylinder(d / 2.0, h, base, direction))
+    return shape, {"holes": f"count:{len(pts)}", "axis": axis}
 
 
 def _rounded_rect_points(L, W, R, z, seg=24):

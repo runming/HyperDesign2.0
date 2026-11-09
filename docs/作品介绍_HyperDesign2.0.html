@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
@@ -49,7 +49,7 @@
   <div>
     <span class="tag">全本地部署</span><span class="tag">受控几何中间表示</span><span class="tag">工艺规则可审计</span>
     <span class="tag">物理信号一票否决</span><span class="tag">自研有限元</span><span class="tag">知识资产 + RBAC</span>
-    <span class="tag">偏好自进化 + 守门员</span><span class="tag">单机 16GB 可跑</span>
+    <span class="tag">偏好自进化 + 守门员</span><span class="tag">单机 16GB 可跑</span><span class="tag">设计空间自动修复</span>
   </div>
 </div>
 
@@ -91,7 +91,7 @@
   <tr><td><b>Workflow</b></td><td>阶段编排、状态机、审批与审计</td><td>6 节点链路；物理不通过时审批门不打开</td></tr>
 </table>
 
-<h2>三、核心能力与实测数据（六道工程门禁，全部可复跑）</h2>
+<h2>三、核心能力与实测数据（七道工程门禁，全部可复跑）</h2>
 <p class="small">每个阶段都有独立门禁脚本与报告，任何人可在本机复跑验证；下表为真实运行结果，不是估算值。</p>
 <table>
   <tr><th style="width:18%">门禁</th><th style="width:34%">考的是什么</th><th style="width:26%">关键结果</th><th>结论</th></tr>
@@ -101,6 +101,7 @@
   <tr><td>M3 交互界面</td><td>真浏览器端到端、三维显示、规则取证、审批闭环</td><td>HUD 实测 <b>120.00×80.00×45.00mm、Z=0.000</b>；19 条规则取证；审批后状态 succeeded</td><td class="ok">9/9 通过</td></tr>
   <tr><td>M4 数值仿真</td><td>与理论解对标、网格收敛</td><td>梁挠度/弯矩误差 <b>0.0000%</b>；圆孔应力集中 <b>Kt=3.128</b>（理论 3.0，误差 4.25%）</td><td class="ok">7/7 通过</td></tr>
   <tr><td>M5 知识资产</td><td>混合检索、引用溯源、角色隔离、无证据拒答</td><td>三角色可见 <b>1/6/7</b> 篇；命中即带 <b>2.4/1.44/1.8°</b> 条款；无关查询 <b>found=false</b></td><td class="ok">10/10 通过</td></tr>
+  <tr><td>M7 可行性与修复</td><td>解析判定 + 最小改动修复 + 跨产品族复用</td><td>R3.0 判不可行（内角 <b>−0.82mm</b>）→ 修复 <b>4.1mm</b> 后重建通过；同引擎建 CNC 支架 <b>18,789mm³</b> 并换规则包通过</td><td class="ok">10/10 通过</td></tr>
 </table>
 
 <h3>3.1 端到端链路（6 节点工作流）</h3>
