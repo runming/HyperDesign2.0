@@ -28,6 +28,10 @@ REPORTS = [
     ("M7", "设计空间可行性与跨产品族复用", "M7-GATE-REPORT.md"),
     ("M9", "平台层端到端性能", "M9-PERF.md"),
     ("M12", "规则引擎裁决质量评测", "M12-RULE-EVAL.md"),
+    ("M14", "交互式 AI 助手", "M14-ASSISTANT-GATE.md"),
+    ("M15", "网格解析特征恢复与误差证书", "M15-ANALYTIC-FIT.md"),
+    ("M16", "工程证据自动修复闭环", "M16-AUTO-REPAIR.md"),
+    ("M17", "DXF 工程图尺寸与公差标注", "M17-DXF-TOLERANCE.md"),
 ]
 
 
@@ -158,8 +162,9 @@ def main():
         path = POC / fname
         if not path.exists():
             continue
-        head = path.read_text(encoding="utf-8")[:600]
-        concl = "未通过" if "未通过" in head else ("通过" if "通过" in head else "—")
+        head = path.read_text(encoding="utf-8")[:1200]
+        concl_line = next((ln for ln in head.splitlines() if ln.strip().startswith("- 结论：")), "")
+        concl = "未通过" if "未通过" in concl_line else ("通过" if "通过" in concl_line else "—")
         toc.append(f'<div>· <b>{mid}</b> {title} —— <span style="color:{"#1e8e4a" if concl == "通过" else "#c0392b"}">{concl}</span></div>')
         summary_rows.append((mid, title, concl))
     toc.append("</div>")
