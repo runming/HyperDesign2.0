@@ -1,6 +1,6 @@
 # M1 门禁报告 · Harness + Agent 信封 + Skill Registry
 
-- 时间：2026-11-10 01:38:12
+- 时间：2026-11-10 01:40:11
 - 结论：**通过**
 - 规则包：`housing_cad.v1`（CAD 几何）/ `housing_mesh.v1`（网格物理）/ `housing_rib.v1`（加强筋）
 

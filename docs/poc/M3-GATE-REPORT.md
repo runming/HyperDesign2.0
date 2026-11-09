@@ -14,4 +14,4 @@
 | U7 审批通过后状态 succeeded | ✅ | 审批结论：通过 · 审批人 工程师
 几何与工艺达标，放行 |
 | U8 白模失败剧本：规则表出现失败行且含条款引用 | ✅ | 6 行失败, 文档引用=True, 条款=True |
-| U9 恶意 IR 被拒且后续节点跳过 | ✅ |  n1_cad_build | failed · 121 ms | NODE_FAILED: WorkflowError: SKILL_FAILED: 技能 'cad.ir.build' 返回 ok=false：[ |  n2_cad_harness | skipped · —  |
+| U9 恶意 IR 被拒且后续节点跳过 | ✅ |  n1_cad_build | failed · 112 ms | NODE_FAILED: WorkflowError: SKILL_FAILED: 技能 'cad.ir.build' 返回 ok=false：[ |  n2_cad_harness | skipped · —  |
