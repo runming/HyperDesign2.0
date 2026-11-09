@@ -7,9 +7,9 @@
 | 申报书 | `docs/申报书_HyperDesign2.0.docx` | 20 页 / 8,029 中文字 / 7 表 / 3 配图 / 仿宋GB2312 五号 | 18 项检查 + 渲染核对 |
 | 作品介绍 PDF | `docs/作品介绍_HyperDesign2.0.pdf` | 6 页 / A4 | 溢出 0 |
 | 一页纸速览 | `docs/一页纸速览_HyperDesign2.0.pdf` | 1 页 / A4 | 溢出 0 |
-| **评测报告** | `docs/评测报告_HyperDesign2.0.pdf` | **17 页 / 9 章（M0–M7、M9 原文合并）** | 溢出 0，章节结论全"通过" |
+| **评测报告** | `docs/评测报告_HyperDesign2.0.pdf` | **18 页 / 10 章（M0–M7、M9、M12）** | 溢出 0，章节结论全"通过" |
 | 演示视频 | `docs/demo/HyperDesign2.0_Demo_1080p.mp4` | 1920×1080 / **92 秒** / 2.9MB | 逐段抽帧核对 |
-| 代码仓库 | `D:\hyperdesign2` | 112 文件 / bundle 6.1MB | 门禁脚本可复跑 |
+| 代码仓库 | `D:\hyperdesign2` | git 已提交 / bundle 就绪 | 门禁脚本可复跑 |
 
 ## 二、申报书结构（20 页）
 

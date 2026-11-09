@@ -1,6 +1,6 @@
 # M0 门禁报告 · CAD-IR 解释器
 
-- 时间：2026-11-10 01:35:36
+- 时间：2026-11-10 01:38:07
 - 引擎：freecad_occt 1.1.4（FreeCAD 自带 OpenCascade）
 - IR：`examples/sensor_housing.m0.ir.json`（4 个特征，全部走白名单算子）
 - 结论：**通过**
@@ -21,8 +21,8 @@
 | 特征 | 类型 | 耗时(ms) | 状态 |
 |---|---|---|---|
 | f1_base | create_tapered_box | 58 | ok |
-| f2_shell | shell | 270 | ok |
-| f3_bosses | add_boss_pattern | 1319 | ok |
+| f2_shell | shell | 268 | ok |
+| f3_bosses | add_boss_pattern | 1320 | ok |
 | f4_led_window | add_cylinder | 134 | ok |
 
 ## 语义引用映射（业务层只用这些名字，不碰 Edge1/Face3）

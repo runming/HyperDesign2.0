@@ -60,6 +60,9 @@ def _fmt_para(p, indent_chars=2, spacing=1.5, align=WD_ALIGN_PARAGRAPH.JUSTIFY, 
     pf.line_spacing = spacing
     pf.space_after = Pt(space_after)
     pf.alignment = align
+    if indent_chars:
+        # 正文段落不跨页断开，避免出现"只剩两行"的孤行页
+        pf.keep_together = True
 
 
 def _write_para(p, text, *, heading=False, indent=2):
