@@ -89,7 +89,9 @@ $py = "E:\hyperdesign\venvs\hd_brain\Scripts\python.exe"
 | 作品介绍 PDF（2.0） | `docs/作品介绍_HyperDesign2.0.pdf`（6 页） |
 | 演示视频（2.0） | `docs/demo/HyperDesign2.0_Demo_1080p.mp4`（75 秒 / 1080p） |
 | 材料清单与视频分镜 | `docs/poc/M6-MATERIALS.md` |
-| 门禁报告 | `docs/poc/M0~M6-GATE-REPORT.md`（7 份） |
+| 评测报告（合并本） | `docs/评测报告_HyperDesign2.0.pdf`（17 页，9 章） |
+| 门禁报告 | `docs/poc/M0~M7、M9`（9 份） |
+| 评审复现指南 | `docs/评审复现指南.md`（5 分钟自证） |
 | 离线仓库快照 | `dist/hyperdesign2.bundle`（6.1MB，可 `git clone` 还原） |
 
 构建脚本：`scripts/m6_build_submission.py`（申报书）、`scripts/m6_build_intro_pdf.py`（PDF）、`scripts/m6_build_video.py`（视频）。
