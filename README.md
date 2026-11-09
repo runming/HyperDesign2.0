@@ -70,7 +70,20 @@ $py = "E:\hyperdesign\venvs\hd_brain\Scripts\python.exe"
 | M4 | CAE（自包含数值有限元 + 理论解对标） | ✅ PASS（7 项） |
 | M5 | 知识资产平台（入库/BM25+向量混合检索/引用溯源/RBAC） | ✅ PASS（10 项） |
 | M6 | 参赛材料：申报书（按官方模板填写） | ✅ 已完成并通过校验（7,038 中文字 / 18 页 / 5 表） |
-| M6b | 参赛材料：作品介绍 PDF 升级 2.0、演示视频重录、仓库推送 | 下一步 |
+| M6b | 参赛材料：作品介绍 PDF 2.0、演示视频、代码仓库 | ✅ 已完成（PDF 6 页 / 视频 75 秒 / 仓库 82 文件） |
+
+### 参赛材料（M6 产出）
+
+| 材料 | 文件 |
+|---|---|
+| 申报书（官方模板填写） | `docs/申报书_HyperDesign2.0.docx` |
+| 作品介绍 PDF（2.0） | `docs/作品介绍_HyperDesign2.0.pdf`（6 页） |
+| 演示视频（2.0） | `docs/demo/HyperDesign2.0_Demo_1080p.mp4`（75 秒 / 1080p） |
+| 材料清单与视频分镜 | `docs/poc/M6-MATERIALS.md` |
+| 门禁报告 | `docs/poc/M0~M6-GATE-REPORT.md`（7 份） |
+| 离线仓库快照 | `dist/hyperdesign2.bundle`（6.1MB，可 `git clone` 还原） |
+
+构建脚本：`scripts/m6_build_submission.py`（申报书）、`scripts/m6_build_intro_pdf.py`（PDF）、`scripts/m6_build_video.py`（视频）。
 
 ### 申报书（M6 新增）
 

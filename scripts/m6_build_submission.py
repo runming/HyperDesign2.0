@@ -102,7 +102,7 @@ def _add_table_after(anchor_p, spec, doc):
     _set_run(run, font=HEAD_FONT, size=9.5, bold=True)
     _fmt_para(cap, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
     cap._p.addnext(tbl._tbl)
-    # 表头
+    # 表头：加 tblHeader 使跨页时自动重复
     for j, h in enumerate(header):
         cell = tbl.rows[0].cells[j]
         cell.text = ""
@@ -111,6 +111,10 @@ def _add_table_after(anchor_p, spec, doc):
         _set_run(run, font=HEAD_FONT, size=9, bold=True)
         _fmt_para(p, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER)
         _shade(cell, "D9E2F3")
+    trPr = tbl.rows[0]._tr.get_or_add_trPr()
+    if trPr.find(qn("w:tblHeader")) is None:
+        th = OxmlElement("w:tblHeader")
+        trPr.append(th)
     for i, row in enumerate(rows, start=1):
         for j, val in enumerate(row):
             cell = tbl.rows[i].cells[j]
@@ -129,6 +133,32 @@ def _shade(cell, hex_color):
     shd.set(qn("w:color"), "auto")
     shd.set(qn("w:fill"), hex_color)
     tcPr.append(shd)
+
+
+def _add_image_after(anchor_p, img_path, caption, doc, width_cm=15.2):
+    """在锚点后插入一张配图 + 图注（图注在图下方，9 磅居中）。"""
+    from docx.text.paragraph import Paragraph
+    p = Path(img_path)
+    if not p.exists():
+        return anchor_p
+    # 图片段落
+    img_el = copy.deepcopy(anchor_p._p)
+    anchor_p._p.addnext(img_el)
+    img_par = Paragraph(img_el, doc)
+    for r in list(img_par.runs):
+        r._element.getparent().remove(r._element)
+    img_par.add_run().add_picture(str(p), width=Cm(width_cm))
+    _fmt_para(img_par, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+    # 图注
+    cap_el = copy.deepcopy(anchor_p._p)
+    img_par._p.addnext(cap_el)
+    cap = Paragraph(cap_el, doc)
+    for r in list(cap.runs):
+        r._element.getparent().remove(r._element)
+    run = cap.add_run(caption)
+    _set_run(run, font=BODY_FONT, size=9)
+    _fmt_para(cap, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=6)
+    return cap
 
 
 def _set_cell_text(cell, text, *, font=BODY_FONT, size=10.5, bold=False):
@@ -217,9 +247,14 @@ def build():
             is_head = line.startswith("## ")
             last = _insert_after(last, line[3:] if is_head else line, heading=is_head)
 
-        spec = C.TABLES.get(anchor_idx)
-        if spec:
-            _add_table_after(last, spec, doc)
+        specs = C.TABLES.get(anchor_idx)
+        if specs:
+            for spec in (specs if isinstance(specs, list) else [specs]):
+                _add_table_after(last, spec, doc)
+                last = doc.paragraphs[-1] if False else last   # 表后仍以正文段为锚点
+
+        for img_path, caption in C.IMAGES.get(anchor_idx, []):
+            last = _add_image_after(last, img_path, caption, doc)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     doc.save(str(OUT))
@@ -239,7 +274,8 @@ def verify(path: Path):
 
     checks = []
     checks.append(("封面与填写说明保留", "填 写 说 明" in text and "第三届" in text))
-    checks.append(("表格数量仍为 5（3 原表 + 2 数据表）", len(doc.tables) == 5))
+    checks.append(("表格数量仍为 6（3 原表 + 3 数据表）", len(doc.tables) == 6))
+    checks.append(("附录配图 ≥3 张", len(doc.inline_shapes) >= 3))
     checks.append(("项目名称已填", C.PROJECT_NAME[:12] in doc.tables[0].rows[0].cells[1].text))
     checks.append(("主题赛已填", C.TRACK in doc.tables[0].rows[1].cells[1].text))
     checks.append(("核心技术勾选 ≥3 项", sum(1 for tb in doc.tables for row in tb.rows
