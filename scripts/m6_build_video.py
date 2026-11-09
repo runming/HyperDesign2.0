@@ -136,6 +136,33 @@ def build_cards():
         ("", DIM, 16),
         ("已知限制如实披露：白模不可直接制造、进化需样本量、部分组件替换", DIM, 24),
     ]))
+    out.append(card("c09_ai", "AI 助手：前中后期都在流程里", [
+        ("前期  说需求 → 结构化 brief + 初始参数 + 自动重算派生参数", FG, 28),
+        ("中期  「壁厚改 2.0」 → 拒绝并引用规范：跨度 120mm 必须 ≥2.4mm", RED, 28),
+        ("中期  「圆角改 5.0」 → 重建 → 准入 passed（体积 67,415mm³）", GREEN, 28),
+        ("中期  「安装孔改 M4 底孔」 → 吸附标准 Ø3.3（ISO 273）", FG, 28),
+        ("后期  「定型」 → 冻结参数；改参数需先说「解冻」", FG, 28),
+        ("", DIM, 14),
+        ("助手只做决策与解释，重建与裁决交给确定性执行体", YELLOW, 24),
+    ]))
+
+    out.append(card("c10_repair", "工程证据 → 自动修复", [
+        ("首轮：立柱悬空 → 实体数 5（要求 1）  ✗ 不通过", RED, 28),
+        ("证据：cad.solid.single 失败，实测 solids=5", DIM, 24),
+        ("修复：POST_H 40.0 → 42.6（= H − 壁厚，立柱顶到内顶面）", YELLOW, 28),
+        ("复验：单实体、准入 passed，1 轮完成", GREEN, 28),
+        ("", DIM, 14),
+        ("包络严重不符时**不硬修**，如实回报交人工——修不好就不修", FG, 24),
+    ]))
+
+    out.append(card("c11_dxf", "工程图：带公差的 DXF", [
+        ("CUT_PROFILE  1:1 切割外轮廓 + 5 个孔（直接进 CAM）", FG, 26),
+        ("HIDDEN_LINE  内腔虚线       DIMENSIONS  尺寸线 + 公差", FG, 26),
+        ("TITLE_BLOCK  材料/壁厚/拔模/公差等级/实测体积", FG, 26),
+        ("", DIM, 14),
+        ("公差按 GB/T 1800.1 IT9 自动查表：120 ±0.087、80 ±0.074、Ø8 ±0.036", GREEN, 26),
+        ("第三方 DXF 库复核：AC1009 / 22 LINE + 5 CIRCLE + 7 TEXT / audit 0 错误", DIM, 22),
+    ]))
     return out
 
 
@@ -157,6 +184,10 @@ def film(cards):
     S.append((by["c05"], 7.0))                          # CAE
     S.append((by["c07"], 8.0))                          # 可行性修复 + 跨产品族
     S.append((by["c08"], 8.0))                          # 工时账
+    S.append((SHOTS / "s10_ai_assistant.png", 8.0))     # AI 助手对话实测
+    S.append((by["c09"], 8.0))                          # 助手前中后期
+    S.append((by["c10"], 7.0))                          # 证据自动修复
+    S.append((by["c11"], 7.0))                          # DXF 公差
     S.append((by["c06"], 6.0))                          # 交付与落地
     return S
 
