@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HyperDesign Studio 2.0</title>
+<link rel="stylesheet" href="./styles.css" />
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+</head>
+<body>
+<header class="bar">
+  <div class="brand">
+    <span class="logo">HD</span>
+    <div>
+      <div class="title">HyperDesign Studio <span class="ver">2.0</span></div>
+      <div class="sub" id="health-line">正在连接后端…</div>
+    </div>
+  </div>
+  <div class="actions">
+    <label class="field">
+      <span>场景剧本</span>
+      <select id="preset-select"></select>
+    </label>
+    <button id="btn-run" class="primary">▶ 运行工作流</button>
+    <span id="run-pill" class="pill idle">未运行</span>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- 左：工作流 -->
+  <section class="panel left">
+    <h2>工作流 <span class="muted" id="wf-id"></span></h2>
+    <div id="node-list" class="nodes"></div>
+    <h2 class="mt">Skill 能力清单</h2>
+    <div id="skill-list" class="skills"></div>
+  </section>
+
+  <!-- 中：三维视窗 + 规则 -->
+  <section class="panel center">
+    <div class="viewport-head">
+      <div class="tabs">
+        <button class="tab active" data-tab="model">三维模型</button>
+        <button class="tab" data-tab="rules">规则取证</button>
+        <button class="tab" data-tab="kb">知识库</button>
+      </div>
+      <div class="vp-tools">
+        <label class="chk"><input type="checkbox" id="toggle-wire" /> 线框</label>
+        <label class="chk"><input type="checkbox" id="toggle-bbox" checked /> 包络盒</label>
+        <button id="btn-fit" class="ghost">复位视角</button>
+      </div>
+    </div>
+    <div id="view-wrap" class="view-wrap">
+      <canvas id="view3d"></canvas>
+      <div class="hud" id="hud">等待运行…</div>
+    </div>
+    <div id="rules-wrap" class="rules-wrap hidden">
+      <div id="rules-summary" class="rules-summary"></div>
+      <div id="rules-body"></div>
+    </div>
+    <div id="kb-wrap" class="rules-wrap hidden">
+      <div class="kb-bar">
+        <input type="text" id="kb-query" placeholder="检索私有工艺规范，例如：PC+ABS 外壳 名义壁厚" />
+        <select id="kb-role">
+          <option value="engineer">工程师</option>
+          <option value="viewer">访客</option>
+          <option value="admin">管理员</option>
+        </select>
+        <button id="kb-search" class="primary">检索</button>
+      </div>
+      <div id="kb-meta" class="rules-summary"></div>
+      <div id="kb-results"></div>
+      <h2 class="mt">可见文档 <span class="muted" id="kb-doc-count"></span></h2>
+      <div id="kb-docs" class="skills"></div>
+    </div>
+  </section>
+
+  <!-- 右：审批 + 事件 -->
+  <section class="panel right">
+    <h2>人工审批门</h2>
+    <div id="approval-box" class="approval">
+      <div class="muted">运行到审批节点后可操作。物理 Harness 未通过时此门不会打开。</div>
+    </div>
+    <h2 class="mt">事件流 <span class="muted" id="event-count"></span></h2>
+    <div id="event-list" class="events"></div>
+  </section>
+</main>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

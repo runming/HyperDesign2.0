@@ -1,0 +1,112 @@
+{
+  "pack_id": "housing.mesh-dfm",
+  "version": "1.0.0",
+  "stage": "dfm",
+  "part_type": "injection_housing",
+  "source": "内部注塑工艺规范_v2.4.pdf（射线测厚 + 拔模场 + 水密性）",
+  "process_context": {
+    "min_wall_mm": 2.4,
+    "rib_max_mm": 1.44,
+    "max_bulk_wall_mm": 4.5,
+    "min_draft_deg": 1.8,
+    "max_envelope_drift_ratio": 0.08
+  },
+  "rules": [
+    {
+      "rule_id": "dfm.mesh.watertight",
+      "title": "网格水密（可直接 3D 打印/切片）",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "mesh.is_watertight"}, "right": {"const": true}},
+      "message": "网格非水密：存在开放边界，无法用于切片与模流分析",
+      "suggested_action": "运行 remesh / 补洞，或改用 CAD 实体回投白模",
+      "citation": {"document": "交付验收内控", "clause": "网格水密性检查（Manifold）"}
+    },
+    {
+      "rule_id": "dfm.wall.p10",
+      "title": "壁厚 p10 分位不低于名义壁厚 2.4mm",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "gte",
+        "left": {"metric": "mesh.p10_wall_mm", "unit": "mm"},
+        "right": {"metric": "process.min_wall_mm", "unit": "mm"}
+      },
+      "message": "存在薄壁区，注塑欠注风险",
+      "suggested_action": "增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案",
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "标准名义壁厚必须设定为 2.4mm（严禁采用通用 2.0mm）",
+        "quote": "凡外壳最大跨度超过 150mm 的产品，标准名义壁厚必须设定为 2.4mm（严禁采用通用 2.0mm）。"
+      }
+    },
+    {
+      "rule_id": "dfm.wall.p90",
+      "title": "壁厚 p90 分位不超过 4.5mm（避免缩水纹）",
+      "severity": "warning",
+      "stage": "dfm",
+      "blocking": false,
+      "check": {
+        "op": "lte",
+        "left": {"metric": "mesh.p90_wall_mm", "unit": "mm"},
+        "right": {"metric": "process.max_bulk_wall_mm", "unit": "mm"}
+      },
+      "message": "存在肥厚积料区，表面易出现缩水纹",
+      "suggested_action": "掏空积料或改为筋板结构",
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "> 4.5mm 的肥厚积料区（缩水纹风险）",
+        "quote": "若实测存在 < 1.8mm 的薄壁区（注塑欠注风险）或 > 4.5mm 的肥厚积料区（缩水纹风险），直接判定为 rejected。"
+      }
+    },
+    {
+      "rule_id": "dfm.draft.median",
+      "title": "立面拔模角中位数满足 1.8°",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "gte",
+        "left": {"metric": "mesh.median_draft_deg", "unit": "deg"},
+        "right": {"metric": "process.min_draft_deg", "unit": "deg"}
+      },
+      "message": "立面拔模不足，脱模困难",
+      "suggested_action": "重构造型或改用 CAD 实体（带拔模）作为最终交付",
+      "citation": {"document": "内部注塑工艺规范_v2.4.pdf", "clause": "拔模斜度统一要求 ≥ 1.8°"}
+    },
+    {
+      "rule_id": "dfm.envelope.drift_y",
+      "title": "Y 向包络漂移不超过 8%",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "ratio_dev",
+        "left": {"metric": "mesh.bbox_mm.y", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.y", "unit": "mm"},
+        "max_ratio": 0.08
+      },
+      "message": "生成式白模的 Y 向比例失真超过 8%，不能直接作为制造依据",
+      "suggested_action": "以白模仅作造型锚点，改由 CAD-IR 按目标包络重建",
+      "citation": {"document": "HyperDesign 工程规范", "clause": "包络漂移 >8% 判为造型失真"}
+    },
+    {
+      "rule_id": "dfm.envelope.drift_z",
+      "title": "Z 向包络漂移不超过 8%",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "ratio_dev",
+        "left": {"metric": "mesh.bbox_mm.z", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.z", "unit": "mm"},
+        "max_ratio": 0.08
+      },
+      "message": "生成式白模的 Z 向比例失真超过 8%，不能直接作为制造依据",
+      "suggested_action": "同上：白模降级为造型锚点",
+      "citation": {"document": "HyperDesign 工程规范", "clause": "包络漂移 >8% 判为造型失真"}
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "pack_id": "housing.cae-check",
+  "version": "1.0.0",
+  "stage": "dfm",
+  "part_type": "injection_housing",
+  "source": "HyperDesign 2.0 CAE 校验（数值有限元 + 理论解对标）",
+  "process_context": {
+    "pc_abs_yield_mpa": 50.0,
+    "max_allowable_stress_mpa": 25.0,
+    "kt_expected": 3.0
+  },
+  "rules": [
+    {
+      "rule_id": "cae.solver.trustworthy",
+      "title": "CAE 求解结果可信（已与理论解对标）",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cae.solver_validated"}, "right": {"const": true}},
+      "message": "CAE 结果未通过与理论解的误差对标，不能作为设计依据",
+      "suggested_action": "检查网格质量与边界条件，重算并对比解析解",
+      "citation": {"document": "CAE Harness", "clause": "结果必须与理论值差异在阈值内或有合理说明"}
+    },
+    {
+      "rule_id": "cae.hole.kt_reasonable",
+      "title": "孔边应力集中系数在理论区间内（约 3.0）",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "between",
+        "left": {"metric": "cae.kt", "unit": "1"},
+        "right": {"const": [2.0, 4.0]}
+      },
+      "message": "应力集中系数偏离经典 Kirsch 解，模型或网格可能有误",
+      "suggested_action": "加密孔边网格，检查边界加载与材料参数",
+      "citation": {
+        "document": "Kirsch 解（圆孔单轴拉伸）",
+        "clause": "σ_θθ,max = 3σ∞，即 Kt = 3",
+        "quote": "无限大板中心圆孔在单轴拉伸下，孔边最大环向应力为远场应力的 3 倍。"
+      }
+    },
+    {
+      "rule_id": "cae.stress.below_limit",
+      "title": "孔边环向应力不超过材料许用应力（50% 屈服）",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "lte",
+        "left": {"metric": "cae.hoop_stress_mpa", "unit": "MPa"},
+        "right": {"metric": "process.max_allowable_stress_mpa", "unit": "MPa"}
+      },
+      "message": "孔边应力超过许用值，长期工作会开裂",
+      "suggested_action": "加厚孔边、增大孔口圆角，或改用加强环",
+      "citation": {
+        "document": "PC+ABS 材料手册",
+        "clause": "屈服强度约 50MPa，取 50% 作为设计许用值（2.4mm 壁厚件）"
+      }
+    }
+  ]
+}

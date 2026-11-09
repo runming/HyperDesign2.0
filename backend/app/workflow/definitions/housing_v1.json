@@ -1,0 +1,89 @@
+{
+  "id": "housing.design-to-delivery",
+  "version": "1.1.0",
+  "title": "传感器外壳：从几何构建到人工验收（含 CAE）",
+  "description": "CAD-IR 构建 → CAD 几何 Harness → 网格物理 DFM Harness → CAE 有限元（导光孔应力集中）→ CAE Harness → 人工审批门。任一层 Harness 判 failed/invalid 即阻断。",
+  "nodes": [
+    {
+      "id": "n1_cad_build",
+      "type": "skill",
+      "title": "① CAD-IR 构建（受控解释器，不执行任意代码）",
+      "skill": "cad.ir.build",
+      "payload": {"ir": "$ctx.ir"},
+      "on_fail": "stop"
+    },
+    {
+      "id": "n2_cad_harness",
+      "type": "harness",
+      "title": "② CAD 几何 Harness（B-Rep / 包络 / 基准面 / 实测拔模）",
+      "harness_pack": "backend/app/harness/rules/housing_cad.v1.json",
+      "depends_on": ["n1_cad_build"],
+      "payload": {
+        "context": {
+          "cad": "$node.n1_cad_build.report.metrics",
+          "target": "$ctx.target",
+          "process": "$ctx.process",
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": "n3_mesh_dfm",
+      "type": "harness",
+      "title": "③ 网格物理 DFM Harness（射线测厚 / 拔模场 / 水密 / 漂移）",
+      "harness_pack": "backend/app/harness/rules/housing_mesh.v1.json",
+      "depends_on": ["n1_cad_build"],
+      "payload": {
+        "context": {
+          "mesh": "$ctx.mesh",
+          "target": "$ctx.target",
+          "process": "$ctx.process",
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": "n3b_cae",
+      "type": "skill",
+      "title": "④ CAE 有限元（导光孔应力集中，与 Kirsch 解对标）",
+      "skill": "cae.hole.plate",
+      "depends_on": ["n1_cad_build"],
+      "payload": {
+        "hole_radius_mm": 4.0,
+        "outer_radius_mm": 40.0,
+        "thickness_mm": 2.4,
+        "young_gpa": 2.4,
+        "poisson": 0.39,
+        "strain": 0.001,
+        "sectors": 48,
+        "rings": 12
+      },
+      "on_fail": "stop"
+    },
+    {
+      "id": "n3c_cae_harness",
+      "type": "harness",
+      "title": "⑤ CAE Harness（结果可信性 / 应力集中区间 / 许用应力）",
+      "harness_pack": "backend/app/harness/rules/housing_cae.v1.json",
+      "depends_on": ["n3b_cae"],
+      "payload": {
+        "context": {
+          "cae": {
+            "solver_validated": "$node.n3b_cae.passed",
+            "kt": "$node.n3b_cae.stress_concentration_kt",
+            "hoop_stress_mpa": "$node.n3b_cae.sigma_max_hoop_mpa"
+          },
+          "process": "$ctx.process",
+          "params": {}
+        }
+      }
+    },
+    {
+      "id": "n4_human_approval",
+      "type": "approval",
+      "title": "⑥ 人工验收（工程师签字放行）",
+      "depends_on": ["n2_cad_harness", "n3_mesh_dfm", "n3c_cae_harness"],
+      "approval_role": "mechanical_engineer"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "pack_id": "housing.rib-constraint",
+  "version": "1.0.0",
+  "stage": "dfm",
+  "part_type": "injection_housing_with_ribs",
+  "source": "内部注塑工艺规范_v2.4.pdf（加强筋厚度 ≤ 名义壁厚 60%）",
+  "process_context": {
+    "min_wall_mm": 2.4,
+    "rib_ratio": 0.6,
+    "rib_max_mm": 1.44
+  },
+  "applies_when": "零件包含加强筋特征时启用；无筋结构不参与此规则（不按通过处理，而是整包不适用）",
+  "rules": [
+    {
+      "rule_id": "dfm.rib.max",
+      "title": "加强筋厚度不超过名义壁厚的 60%（1.44mm）",
+      "severity": "error",
+      "stage": "dfm",
+      "blocking": true,
+      "check": {
+        "op": "lte",
+        "left": {"metric": "rib.thickness_mm", "unit": "mm"},
+        "right": {"metric": "process.rib_max_mm", "unit": "mm"}
+      },
+      "message": "加强筋过厚，筋根背面会形成缩水纹",
+      "suggested_action": "把筋厚降到 ≤1.44mm（名义壁厚 2.4mm 的 60%），或加大筋根圆角",
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "内侧加强筋厚度不得超过名义壁厚的 60%（即 1.44mm）",
+        "quote": "内侧加强筋厚度不得超过名义壁厚的 60%（即 1.44mm），否则极易产生表面缩水纹。"
+      }
+    }
+  ]
+}

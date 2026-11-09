@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venvs/
+
+# 运行期数据（工作流事件、CAD 产物、临时渲染）
+data/
+_probe/
+.dsh-office-*/
+
+# CAD 产物（可由 CAD-IR 重跑生成）
+*.step
+*.stp
+*.stl
+*.glb
+
+# 临时与日志
+logs/
+*.log
+*.tmp
+
+# 参考仓库（仅本地分析用，不入库）
+_ref/
+_ref_mechanical/

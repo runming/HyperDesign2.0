@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>HyperDesign 2.0 作品介绍</title>
+<style>
+  @page { size: A4; margin: 15mm 14mm 14mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; color: #1b232c; font-size: 10.2pt; line-height: 1.7; margin: 0; word-break: break-word; }
+  h1 { font-size: 20pt; margin: 0 0 4px; color: #0d1b2a; }
+  h2 { font-size: 13.2pt; margin: 20px 0 8px; padding: 5px 0 5px 11px; border-left: 5px solid #00a8ff; color: #0d1b2a; background: #f2f7fb; page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 12px 0 4px; color: #0a4a73; page-break-after: avoid; }
+  p { margin: 5px 0; text-align: justify; }
+  ul, ol { margin: 4px 0; padding-left: 19px; }
+  li { margin: 3px 0; }
+  code { font-family: Consolas, monospace; background: #eef3f7; padding: 1px 4px; border-radius: 3px; font-size: 9.2pt; color: #0b4f6c; }
+  table { width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; margin: 7px 0 9px; font-size: 9.2pt; page-break-inside: avoid; }
+  th { background: #0d1b2a; color: #fff; text-align: left; padding: 5px 7px; font-weight: 600; }
+  td { border-bottom: 1px solid #d8e2ea; padding: 5px 7px; vertical-align: top; word-break: break-word; }
+  tr:nth-child(even) td { background: #f8fbfd; }
+  .cover { border-top: 7px solid #00a8ff; padding-top: 14px; margin-bottom: 10px; }
+  .sub { font-size: 11pt; color: #4a5c6b; margin: 2px 0 9px; }
+  .meta { font-size: 9.2pt; color: #61727f; line-height: 1.85; }
+  .tag { display: inline-block; background: #e8f4fd; color: #0a6ea8; border: 1px solid #b9dcf3; border-radius: 11px; padding: 1px 9px; font-size: 8.6pt; margin: 0 4px 4px 0; }
+  .callout { background: #f4faf6; border-left: 4px solid #2ecc71; padding: 8px 11px; margin: 9px 0; font-size: 9.8pt; }
+  .warn { background: #fffaf0; border-left: 4px solid #e8a33d; padding: 8px 11px; margin: 9px 0; font-size: 9.8pt; }
+  .arch { font-family: Consolas, monospace; font-size: 7.1pt; line-height: 1.45; background: #0d1b2a; color: #d7e6f2; padding: 9px 10px; border-radius: 5px; white-space: pre; overflow: hidden; page-break-inside: avoid; }
+  .num { font-weight: 700; color: #0a6ea8; }
+  .ok { color: #1e8e4a; font-weight: 700; }
+  .no { color: #c0392b; font-weight: 700; }
+  .small { font-size: 9pt; color: #61727f; }
+  .pagebreak { page-break-before: always; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .card { border: 1px solid #d8e2ea; border-radius: 6px; padding: 8px 10px; background: #fbfdfe; }
+  .card b { color: #0a4a73; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>HyperDesign 2.0 —— 面向制造落地的自进化工业设计智能体平台</h1>
+  <div class="sub">作品介绍（2.0 版）· 把生成式造型深度装进平台化工程骨架</div>
+  <div class="meta">
+    项目编号：proj_20261014_001　|　示范产品：工业级无线振动/温湿度三合一传感器外壳（120×80×45mm，PC+ABS 上盖 + 铝合金 CNC 底座）<br />
+    申报赛道：第三届"兴智杯"全国人工智能创新应用大赛 · 解决方案赛 · 行业赋能<br />
+    1.0 版本记录：见仓库 <code>docs/作品介绍_HyperDesign.pdf</code>；2.0 增量：平台层（智能体/技能/准入/工作流/界面）、CAE、知识资产与六道工程门禁。
+  </div>
+  <div>
+    <span class="tag">全本地部署</span><span class="tag">受控几何中间表示</span><span class="tag">工艺规则可审计</span>
+    <span class="tag">物理信号一票否决</span><span class="tag">自研有限元</span><span class="tag">知识资产 + RBAC</span>
+    <span class="tag">偏好自进化 + 守门员</span><span class="tag">单机 16GB 可跑</span>
+  </div>
+</div>
+
+<h2>一、为什么需要 2.0：1.0 的三个结构性缺口</h2>
+<p>1.0 版证明了「概念图→白模→参数化实体→国标图纸」可以端到端跑通，但作为参赛与交付系统，它有三个硬伤：</p>
+<table>
+  <tr><th style="width:24%">缺口</th><th style="width:38%">1.0 的问题</th><th>2.0 的解法</th></tr>
+  <tr><td><b>执行不可审计</b></td><td>由大模型直接生成建模脚本并在几何内核里执行——不可复现、换不了内核，且存在任意代码执行风险</td><td><b>受控几何中间表示（IR）</b>：模型只产出 JSON，执行体是固定白名单解释器，<code>execute_script</code> 一律拒绝</td></tr>
+  <tr><td><b>结论不可追溯</b></td><td>可制造性检查是硬编码判断，只有布尔结论，说不出"哪条规范、实测多少、差多少、怎么改"</td><td><b>准入规则引擎</b>：规则携带规范文档与条款原文、实测值/限值/单位、整改建议与阻断语义</td></tr>
+  <tr><td><b>过程不可观测</b></td><td>线性脚本 + 文本日志，没有阶段状态、没有审批门、失败无法定位到节点</td><td><b>工作流引擎</b>：持久化 DAG、单调序号事件流、SSE 推送、人工审批门、断点续跑与幂等</td></tr>
+</table>
+<p>补充两个能力缺口：1.0 没有<b>仿真</b>（无法回答"够不够强"），也没有<b>知识资产</b>（工艺规范写死在代码里）。2.0 一并补齐：自研有限元求解器与支持角色隔离的知识库。</p>
+
+<h2>二、系统架构：六层 + 五类抽象</h2>
+<div class="arch">┌────────────────────────────────────────────────────────────────────────────┐
+│ L5 交互层  HyperDesign Studio（零构建单页：工作流 / 三维 / 规则取证 / 知识库 / 审批）│
+├────────────────────────────────────────────────────────────────────────────┤
+│ L4 编排层  Workflow Engine（DAG · 事件流 seq · SSE · 重试 · 审批门 · 幂等）        │
+│            Agent Layer（结构化信封：状态/置信度/假设/告警/引用/结果/下一步）        │
+├────────────────────────────────────────────────────────────────────────────┤
+│ L3 约束层  Harness 规则引擎（四严重级 · 四聚合值 · 受控算子 · 条款引用 · 建议动作） │
+│            Skill Registry（key@version · 输入校验 · 幂等 · 允许列表）             │
+├────────────────────────────────────────────────────────────────────────────┤
+│ L2 表示层  CAD-IR（参数/特征/语义引用/能力声明/禁止任意代码）→ 内核适配器         │
+├────────────────────────────────────────────────────────────────────────────┤
+│ L1 能力层  工艺检索 · 概念发散 · 三维重建 · 毫米对齐 · 射线测厚 · 拔模场           │
+│            · 几何内核校验 · 数值仿真(FEM) · 国标制图 · 1:1 激光切割               │
+├────────────────────────────────────────────────────────────────────────────┤
+│ L0 资产层  知识文档(7篇/13条款) · 设计资产版本 · 事件审计 · 八级可观测关联标识      │
+└────────────────────────────────────────────────────────────────────────────┘</div>
+
+<h3>2.1 五类抽象（这是 2.0 与"套壳大模型"的根本区别）</h3>
+<table>
+  <tr><th style="width:16%">抽象</th><th style="width:42%">职责边界</th><th>落地证据</th></tr>
+  <tr><td><b>Agent</b></td><td>只做决策与协调，不做数值计算、不操作内核；输出必须通过信封校验</td><td>非法状态、完成但空结果、需输入却无下一步——三类都被拒绝</td></tr>
+  <tr><td><b>Skill</b></td><td>版本化确定性执行体，输入必填字段校验、幂等、超时</td><td>6 个技能；未知技能返回 <code>SKILL_NOT_FOUND</code>，缺字段返回 <code>SKILL_INPUT_INVALID</code></td></tr>
+  <tr><td><b>Harness</b></td><td>判定"当前输入/过程/结果是否允许继续"，不生成设计</td><td>3 个规则包 20 条规则，全部带文档与条款引用</td></tr>
+  <tr><td><b>CAD-IR</b></td><td>模型与几何内核之间唯一的数据契约</td><td>两次重建体积偏差 <span class="num">0.0000%</span>；注入 <code>execute_script</code> 被拒</td></tr>
+  <tr><td><b>Workflow</b></td><td>阶段编排、状态机、审批与审计</td><td>6 节点链路；物理不通过时审批门不打开</td></tr>
+</table>
+
+<h2>三、核心能力与实测数据（六道工程门禁，全部可复跑）</h2>
+<p class="small">每个阶段都有独立门禁脚本与报告，任何人可在本机复跑验证；下表为真实运行结果，不是估算值。</p>
+<table>
+  <tr><th style="width:18%">门禁</th><th style="width:34%">考的是什么</th><th style="width:26%">关键结果</th><th>结论</th></tr>
+  <tr><td>M0 几何表示与解释器</td><td>确定性、拓扑合法、尺寸、实测拔模、安全边界</td><td>体积偏差 <b>0.0000%</b>；包络 <b>120.0×80.0×45.0mm</b>；Z_min=0；<b>拔模 min 1.8°、零度直壁 0</b></td><td class="ok">8/8 通过</td></tr>
+  <tr><td>M1 准入规则与智能体</td><td>规则可审计、裁决四值、缺失即无效、越权拦截</td><td>17 条规则全带引用；白模被判不通过（薄壁 <b>1.51mm &lt; 2.4mm</b>）；指标缺失判 <b>invalid</b>；非法算子被拒</td><td class="ok">13/13 通过</td></tr>
+  <tr><td>M2 工作流与事件流</td><td>审批不可绕过、断点续跑、幂等、事件可回放</td><td>物理不通过→审批节点 <b>skipped</b>；12 条事件 seq 单调可补拉；重复运行被拒</td><td class="ok">8/8 通过</td></tr>
+  <tr><td>M3 交互界面</td><td>真浏览器端到端、三维显示、规则取证、审批闭环</td><td>HUD 实测 <b>120.00×80.00×45.00mm、Z=0.000</b>；19 条规则取证；审批后状态 succeeded</td><td class="ok">9/9 通过</td></tr>
+  <tr><td>M4 数值仿真</td><td>与理论解对标、网格收敛</td><td>梁挠度/弯矩误差 <b>0.0000%</b>；圆孔应力集中 <b>Kt=3.128</b>（理论 3.0，误差 4.25%）</td><td class="ok">7/7 通过</td></tr>
+  <tr><td>M5 知识资产</td><td>混合检索、引用溯源、角色隔离、无证据拒答</td><td>三角色可见 <b>1/6/7</b> 篇；命中即带 <b>2.4/1.44/1.8°</b> 条款；无关查询 <b>found=false</b></td><td class="ok">10/10 通过</td></tr>
+</table>
+
+<h3>3.1 端到端链路（6 节点工作流）</h3>
+<p>① 几何中间表示构建 → ② CAD 几何准入（B-Rep 合法性 / 三向包络 / 基准面 / 实测拔模）→ ③ 网格物理准入（射线测厚 p10 / 拔模场 / 水密 / 包络漂移）→ ④ 数值仿真（导光孔应力集中）→ ⑤ 仿真准入（结果是否已对标 / 应力区间 / 许用值）→ ⑥ 人工验收门。任一层判失败或无效，后续节点与审批门立即阻断。</p>
+
+<div class="pagebreak"></div>
+<h2>四、四个真实应用场景</h2>
+<div class="grid">
+  <div class="card"><b>① 注塑结构件敏捷开发</b><br />
+    输入功能描述与包络，自动注入企业规范（壁厚 2.4mm / 筋 1.44mm / 拔模 1.8°），产出通过几何校验的 STEP 与 A3 工程图。<br />
+    <span class="small">实测：首轮通过，包络偏差 0，体积 69,042.2mm³</span></div>
+  <div class="card"><b>② 钣金与激光切割件排产</b><br />
+    自动剥离图框与尺寸线，输出 1:1 纯净外轮廓与孔位的激光切割文件。<br />
+    <span class="small">实测：TOP 轮廓 82 条，仅切割图层</span></div>
+  <div class="card"><b>③ 非标零部件系列化派生</b><br />
+    交付参数化几何中间表示而非死模型，改参数即派生同族规格，图纸与工艺约束同步。<br />
+    <span class="small">实测：两次重建体积偏差 0.0000%</span></div>
+  <div class="card"><b>④ 跨部门免插件协同审阅</b><br />
+    零构建单页，浏览器内三维旋转、线框检查、Z 轴剖切、包络核对与一键提交。<br />
+    <span class="small">实测：一次提交归档 3 条偏好样本</span></div>
+</div>
+
+<h2>五、六个创新点</h2>
+<ol>
+  <li><b>几何真实优先的跨模态尺寸锚定</b>：以白模三层高度（10%/50%/90%）截面采样作为草图尺寸锚点，把美学比例翻译为可校验的尺寸约束，最终实体包络与目标偏差为 0。</li>
+  <li><b>受控几何中间表示 + 自愈闭环</b>：模型只产出数据、不执行代码；内核返回拓扑/体积/包络误差作为硬判据，失败回传诊断并最多自愈五轮，失败与成功样本同时进入偏好数据。</li>
+  <li><b>客观物理信号优于视觉评分的三级评判</b>：射线测厚与拔模场作为第一关，通过后才进入视觉语言模型评分与人工终审；白模因薄壁 1.51mm、拔模 0.84°、非水密被判不通过，系统改走"白模仅作锚点、实体按铁律重建"路径。</li>
+  <li><b>工艺知识、规则与证据一体化</b>：每条规则裁决都带文档、条款原文、实测值与建议动作；知识检索设证据门控，无证据即拒答，把"凭印象回答"改造成"凭证据裁决"。</li>
+  <li><b>自研数值仿真并强制对标</b>：无外部求解器依赖，梁单元对等截面梁为精确解（误差 0.0000%），带孔板应力集中与经典解误差 4.25%；未通过对标的结果不得作为设计依据。</li>
+  <li><b>零边际成本的偏好进化与守门员</b>：设计选择与自愈记录自动成为偏好样本；模型迭代必须通过黄金基准回归，未全面超越即禁止切流（实测样本不足时守门员判定 0/1，正确阻止上线）。</li>
+</ol>
+
+<h2>六、与同类方案的对比</h2>
+<table>
+  <tr><th style="width:22%">能力</th><th style="width:30%">同类平台（参考 Gitee 公开实现）</th><th>HyperDesign 2.0</th></tr>
+  <tr><td>智能体/技能/准入抽象</td><td>有（Agent/Skill/Harness 声明）</td><td class="ok">同等严谨，且规则带条款引用与实测证据</td></tr>
+  <tr><td>几何中间表示</td><td>声明式 IR，禁止脚本执行</td><td class="ok">IR + 几何锚点 + 实测拔模场；任意代码注入被拒</td></tr>
+  <tr><td>工作流与审批</td><td>节点状态机 + 人工审批</td><td class="ok">DAG + 事件流 seq/SSE + 物理否决 + 幂等续跑</td></tr>
+  <tr><td>知识资产</td><td>混合检索 + 权限</td><td class="ok">混合检索 + RBAC + <b>证据门控（无证据拒答）</b></td></tr>
+  <tr><td>仿真</td><td>外部求解器（需装编译链）</td><td class="ok">自研 FEM，零依赖，强制与理论解对标</td></tr>
+  <tr><td>生成式造型</td><td class="no">无（模板参数驱动）</td><td class="ok">概念发散 → 三维重建 → 毫米对齐 → 可制造实体</td></tr>
+  <tr><td>物理可制造性</td><td class="no">规则阈值</td><td class="ok">射线测厚 p10 + B-Rep 拔模场实测</td></tr>
+  <tr><td>模型自进化</td><td class="no">无</td><td class="ok">偏好样本自动归档 + 基准回归守门员</td></tr>
+</table>
+
+<h2>七、落地可行性</h2>
+<ul>
+  <li><b>单机离线</b>：一张 16GB 消费级显卡 + Windows/WSL 双环境，全部推理与几何计算本地执行，断开外网可完整运行，无云端 API。</li>
+  <li><b>零构建前端</b>：交互层为静态单页（本地 vendored 三维库），无 npm 构建链，拷走即用。</li>
+  <li><b>标准格式交付</b>：STEP / DXF / PDF 直接进入既有 CAD、CAM 与质检流程，不改变企业现有工具链。</li>
+  <li><b>数据合规</b>：文档与资产不出内网；知识库按角色隔离；运行产生带序号的审计事件；产物下载做文件名白名单与路径规范化；智能体工具调用采用允许列表。</li>
+  <li><b>可复制性</b>：换行业只需替换知识文档与规则包，不改代码；所有门禁脚本可复跑，验收标准客观。</li>
+</ul>
+
+<h2>八、已知限制（如实披露）</h2>
+<div class="warn">
+<ol style="margin:2px 0 0 0">
+  <li><b>生成式白模本身不可直接制造</b>：单图重建的网格不水密、壁厚与拔模不可控，系统将其降级为"造型比例参考"，制造实体由受控建模按工艺铁律重建——这正是三级评判存在的意义。</li>
+  <li><b>偏好进化需要样本量</b>：本次仅 3 条偏好样本做机制验证，进化模型在基准题上一通过率为 0/1，守门员据此禁止切流；按规范需积累 50~100 条再做正式进化。</li>
+  <li><b>部分规划组件在本机不可用</b>：建模库的原生扩展无法加载，改用同一开源几何内核的宿主程序；检索与求解改为自研实现。替换原因与验证结果逐条记录在仓库 <code>issues.md</code>（24 条）。</li>
+  <li><b>市场与成本数据尚缺第三方核验</b>：材料中的市场判断为定性分析，量化收益需在试点客户处标定后再补充。</li>
+</ol>
+</div>
+
+<h2>九、参考与依据</h2>
+<p class="small">
+1) Structured 3D Latents for Scalable and Versatile 3D Generation，arXiv:2412.01506；
+2) M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings，arXiv:2402.03216；
+3) FLUX.2: Frontier Visual Intelligence，Black Forest Labs，2025；
+4) Flexible Isosurface Extraction for Gradient-Based Mesh Optimization，arXiv:2308.05371；
+5) Direct Preference Optimization，arXiv:2305.18290；6) QLoRA，arXiv:2305.14314；7) Rectified Flow，arXiv:2209.03003；
+8) GB/T 14665《机械工程 CAD 制图规则》、GB/T 1804《一般公差 未注公差的线性和角度尺寸的公差》；
+9) Open CASCADE Technology、FreeCAD、ezdxf、three.js、Unsloth 官方文档。
+</p>
+
+<p class="small">所有数字均由本机门禁脚本产出，原始报告见 <code>docs/poc/M0~M6-GATE-REPORT.md</code>；界面截图见 <code>docs/poc/shots/</code>；演示视频见 <code>docs/demo/</code>。</p>
+
+</body>
+</html>

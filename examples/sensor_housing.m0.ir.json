@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "document": {
+    "type": "part",
+    "name": "sensor_housing_v2_m0",
+    "unit": "mm",
+    "revision": "M0",
+    "description": "工业无线振动/温湿度三合一传感器外壳上盖（PC+ABS）：1.8° 拔模锥形基体 + 2.4mm 等壁厚 + 4×M4 螺钉柱 + 顶部导光柱窗口"
+  },
+  "parameters": {
+    "LENGTH_X": 120.0,
+    "WIDTH_Y": 80.0,
+    "HEIGHT_Z": 45.0,
+    "WALL": 2.4,
+    "DRAFT_DEG": 1.8,
+    "CORNER_R": 4.5,
+    "POST_OD": 8.0,
+    "POST_PILOT_D": 3.4,
+    "POST_INSET": 10.0,
+    "POST_H": 42.6,
+    "LED_D": 8.0,
+    "LED_DEPTH": 4.4,
+    "LED_Z": 41.6
+  },
+  "features": [
+    {
+      "id": "f1_base",
+      "type": "create_tapered_box",
+      "depends_on": [],
+      "params": {
+        "length": "LENGTH_X",
+        "width": "WIDTH_Y",
+        "height": "HEIGHT_Z",
+        "draft_deg": "DRAFT_DEG",
+        "corner_radius": "CORNER_R"
+      },
+      "semantic": {"body": "body", "bottom_face": "seat_face"},
+      "on_failure": "stop"
+    },
+    {
+      "id": "f2_shell",
+      "type": "shell",
+      "depends_on": ["f1_base"],
+      "params": {
+        "thickness": "WALL",
+        "open_faces": "bottom",
+        "strategy": "cavity_cut",
+        "draft_deg": "DRAFT_DEG",
+        "corner_radius_outer": "CORNER_R"
+      },
+      "semantic": {"shell": "inner_cavity"},
+      "on_failure": "stop"
+    },
+    {
+      "id": "f3_bosses",
+      "type": "add_boss_pattern",
+      "depends_on": ["f2_shell"],
+      "params": {
+        "outer_diameter": "POST_OD",
+        "inner_diameter": "POST_PILOT_D",
+        "height": "POST_H",
+        "positions": {"type": "corner4", "inset": ["POST_INSET", "POST_INSET"]}
+      },
+      "semantic": {"bosses": "m4_screw_posts"},
+      "on_failure": "stop"
+    },
+    {
+      "id": "f4_led_window",
+      "type": "add_cylinder",
+      "depends_on": ["f3_bosses"],
+      "params": {
+        "radius": 4.0,
+        "height": "LED_DEPTH",
+        "z_start": "LED_Z",
+        "positions": {"type": "explicit", "points": [[30.0, 0.0]]},
+        "mode": "cut"
+      },
+      "semantic": {"light_window": "led_light_guide"},
+      "on_failure": "stop"
+    }
+  ],
+  "outputs": ["step", "stl"],
+  "metadata": {
+    "generated_by": "hyperdesign2.cadir (M0)",
+    "source": "v1 parametric_model.py 的数据化升级：新增真实 1.8° 拔模与拐角等壁厚内腔",
+    "standards": ["GB/T 14665", "GB/T 1804"],
+    "process": "注塑（PC+ABS）",
+    "design_notes": [
+      "外角半径 4.5mm 是工艺约束推导结果：R_top = 4.5 - 45*tan(1.8°) = 3.09mm > 壁厚 2.4mm，",
+      "否则顶部内腔无法做出等壁厚圆角（R3 时顶面角半径仅 1.59mm，拐角壁厚会掉到 ~0.44mm）"
+    ],
+    "geometry_anchor": {
+      "note": "由 Phase 3 白模三层切片（10%/50%/90%）采样得到，此处为 M0 固定锚点",
+      "bottom_10pct": {"span_x_mm": 120.0, "span_y_mm": 80.0},
+      "mid_50pct": {"span_x_mm": 120.0, "span_y_mm": 80.0},
+      "top_90pct": {"span_x_mm": 120.0, "span_y_mm": 80.0}
+    }
+  }
+}

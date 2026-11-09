@@ -1,0 +1,160 @@
+{
+  "pack_id": "housing.cad-integrity",
+  "version": "1.0.0",
+  "stage": "cad",
+  "part_type": "injection_housing",
+  "source": "内部注塑工艺规范_v2.4.pdf + GB/T 1804 一般公差",
+  "process_context": {
+    "min_wall_mm": 2.4,
+    "rib_max_mm": 1.44,
+    "min_draft_deg": 1.8,
+    "max_draft_face_deg": 45.0
+  },
+  "rules": [
+    {
+      "rule_id": "cad.brep.valid",
+      "title": "B-Rep 拓扑合法",
+      "severity": "critical",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.is_valid", "unit": "bool"}, "right": {"const": true}},
+      "message": "实体拓扑非法（自交/破面/非闭合），不可交付",
+      "suggested_action": "回溯 feature 级诊断，定位失败特征并降低倒角/抽壳难度",
+      "citation": {"document": "交付验收内控", "clause": "CAD Harness：B-Rep 有效性", "note": "OCC Shape.isValid()"}
+    },
+    {
+      "rule_id": "cad.solid.single",
+      "title": "单一实体（无游离碎片）",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.solids"}, "right": {"const": 1}},
+      "message": "实体数不为 1：存在碎片或未合并的布尔残留",
+      "suggested_action": "检查布尔刀具是否贯穿，合并同材料实体",
+      "citation": {"document": "交付验收内控", "clause": "CAD Harness：预期实体数"}
+    },
+    {
+      "rule_id": "cad.envelope.x",
+      "title": "包络 X 与设计目标一致",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.x", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.x", "unit": "mm"},
+        "tolerance": 1.5
+      },
+      "message": "X 向包络超出 ±1.5mm 交付公差",
+      "suggested_action": "校正基体长度或抽壳偏移量",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差 m 级（0.5~3mm 区间按 ±0.2mm，此处按交付内控 ±1.5mm）"}
+    },
+    {
+      "rule_id": "cad.envelope.y",
+      "title": "包络 Y 与设计目标一致",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.y", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.y", "unit": "mm"},
+        "tolerance": 1.5
+      },
+      "message": "Y 向包络超出 ±1.5mm 交付公差",
+      "suggested_action": "校正基体宽度",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差"}
+    },
+    {
+      "rule_id": "cad.envelope.z",
+      "title": "包络 Z 与设计目标一致",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.bbox_mm.z", "unit": "mm"},
+        "right": {"metric": "target.bbox_mm.z", "unit": "mm"},
+        "tolerance": 1.5
+      },
+      "message": "Z 向包络超出 ±1.5mm 交付公差",
+      "suggested_action": "校正高度或顶壁收口量",
+      "citation": {"document": "GB/T 1804-m", "clause": "线性尺寸未注公差"}
+    },
+    {
+      "rule_id": "cad.seat.flat",
+      "title": "底面坐平在 Z=0 基准面",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "near",
+        "left": {"metric": "cad.z_min", "unit": "mm"},
+        "right": {"const": 0.0, "unit": "mm"},
+        "tolerance": 0.01
+      },
+      "message": "底面未坐平在 Z=0，后续装配与装夹基准不成立",
+      "suggested_action": "平移实体使 BoundBox.ZMin = 0",
+      "citation": {"document": "内部建模规范", "clause": "所有零件底面坐平 Z=0 作为工业基准面"}
+    },
+    {
+      "rule_id": "cad.draft.measured",
+      "title": "拔模角已实测（不得以图纸标注代替测量）",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.dfm.measured"}, "right": {"const": true}},
+      "message": "缺少拔模角实测数据：图纸标注不能替代几何测量",
+      "suggested_action": "运行 CAD 拔模面扫描（planar face field）后再提交",
+      "citation": {"document": "内部注塑工艺规范_v2.4.pdf", "clause": "拔模斜度统一要求 ≥ 1.8°"}
+    },
+    {
+      "rule_id": "cad.draft.min",
+      "title": "最小拔模角满足工艺铁律 1.8°",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {
+        "op": "gte",
+        "left": {"metric": "cad.dfm.min_draft_deg", "unit": "deg"},
+        "right": {"metric": "process.min_draft_deg", "unit": "deg"}
+      },
+      "message": "存在拔模角不足的侧壁，脱模时会拉伤",
+      "suggested_action": "增大基体拔模角，或减小外角半径使顶部角半径仍大于壁厚",
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "拔模斜度统一要求 ≥ 1.8°",
+        "quote": "我司二号车间海天注塑机加工 PC+ABS 材质工业外壳时……拔模斜度统一要求 ≥ 1.8°。"
+      }
+    },
+    {
+      "rule_id": "cad.draft.vertical_faces",
+      "title": "无零度直壁（卡模风险）",
+      "severity": "error",
+      "stage": "cad",
+      "blocking": true,
+      "check": {"op": "eq", "left": {"metric": "cad.dfm.vertical_face_count"}, "right": {"const": 0}},
+      "message": "存在拔模角为 0 的直壁面：卡模与拉伤高风险",
+      "suggested_action": "为所有侧壁补足 ≥1.8° 拔模",
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "识别零度直壁（卡模拉伤风险）",
+        "quote": "……统计所有近似平行于脱模方向（Z 轴）的立面法向量夹角，识别零度直壁（卡模拉伤风险）。"
+      }
+    },
+    {
+      "rule_id": "cad.volume.sane",
+      "title": "体积在合理区间",
+      "severity": "warning",
+      "stage": "cad",
+      "blocking": false,
+      "check": {
+        "op": "between",
+        "left": {"metric": "cad.volume_mm3", "unit": "mm³"},
+        "right": {"const": [1000, 5000000]}
+      },
+      "message": "体积异常（过小可能为空壳、过大可能未抽壳）",
+      "citation": {"document": "交付验收内控", "clause": "体积合理性提示"}
+    }
+  ]
+}
