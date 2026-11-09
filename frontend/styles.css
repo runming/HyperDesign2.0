@@ -106,3 +106,11 @@ tr.invalid td { background: #3a2f141f; }
 .kb-bar { display: flex; gap: 8px; margin-bottom: 12px; }
 .kb-bar input[type="text"] { flex: 1; }
 .kb-bar select { width: 110px; }
+
+.ai-log { display: flex; flex-direction: column; gap: 10px; max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+.ai-msg { border-radius: 8px; padding: 8px 11px; max-width: 92%; }
+.ai-msg.user { align-self: flex-end; background: #16354d; border: 1px solid #24506f; }
+.ai-msg.assistant { align-self: flex-start; background: #0f1b25; border: 1px solid #1d3346; }
+.ai-msg .who { font-size: 11px; color: #7fd4ff; margin-bottom: 4px; }
+.ai-msg .txt { font-size: 13px; line-height: 1.62; }
+.ai-msg .meta { margin-top: 6px; font-size: 11px; color: #8aa2b5; }

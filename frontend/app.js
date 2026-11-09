@@ -109,6 +109,7 @@ document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () 
   $('#view-wrap').classList.toggle('hidden', tab !== 'model');
   $('#rules-wrap').classList.toggle('hidden', tab !== 'rules');
   $('#kb-wrap').classList.toggle('hidden', tab !== 'kb');
+  $('#ai-wrap').classList.toggle('hidden', tab !== 'ai');
   if (tab === 'kb') loadKbDocs();
 }));
 
@@ -151,6 +152,50 @@ async function doKbSearch() {
 $('#kb-search').addEventListener('click', doKbSearch);
 $('#kb-query').addEventListener('keydown', (e) => { if (e.key === 'Enter') doKbSearch(); });
 $('#kb-role').addEventListener('change', () => { loadKbDocs(); });
+
+// ---------------------------------------------------------------- AI 助手
+const AI_SESSION = 'studio-' + Math.random().toString(36).slice(2, 8);
+
+function aiBubble(role, text, extra) {
+  const div = document.createElement('div');
+  div.className = 'ai-msg ' + role;
+  div.innerHTML = `<div class="who">${role === 'user' ? '你' : 'HyperDesign 助手'}</div>
+                   <div class="txt">${text.replace(/\n/g, '<br>')}</div>`
+    + (extra ? `<div class="meta">${extra}</div>` : '');
+  $('#ai-log').appendChild(div);
+  $('#ai-log').scrollTop = $('#ai-log').scrollHeight;
+}
+
+async function aiSend() {
+  const text = $('#ai-input').value.trim();
+  if (!text) return;
+  $('#ai-input').value = '';
+  aiBubble('user', text);
+  $('#ai-send').disabled = true;
+  try {
+    const r = await jpost('/api/assistant/message', { session: AI_SESSION, text });
+    const extra = [`阶段 ${r.stage}`, r.kind];
+    if (r.verdict) extra.push(`准入 ${r.verdict}`);
+    if (r.build && r.build.metrics) extra.push(`实体 ${r.build.metrics.solids} · 体积 ${r.build.metrics.volume_mm3}mm³`);
+    if (r.params) extra.push(`壁厚 ${r.params.WALL} · 拔模 ${r.params.DRAFT_DEG}° · 圆角 R${r.params.CORNER_R}`);
+    aiBubble('assistant', r.reply, extra.join(' · '));
+    $('#ai-meta').innerHTML = `<div class="chip">会话 ${AI_SESSION} · 阶段 <b>${r.stage}</b>
+      · 包络 ${r.params.LENGTH_X}×${r.params.WIDTH_Y}×${r.params.HEIGHT_Z}mm
+      · 立柱高 ${r.params.POST_H} · 导光窗 Z=${r.params.LED_Z}</div>`;
+  } catch (e) {
+    aiBubble('assistant', '调用失败：' + e.message, 'error');
+  } finally {
+    $('#ai-send').disabled = false;
+  }
+}
+
+$('#ai-send').addEventListener('click', aiSend);
+$('#ai-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') aiSend(); });
+$('#ai-reset').addEventListener('click', async () => {
+  await jpost('/api/assistant/reset', { session: AI_SESSION, text: '' });
+  $('#ai-log').innerHTML = '';
+  $('#ai-meta').innerHTML = '<div class="chip">会话已重置</div>';
+});
 
 // ---------------------------------------------------------------- 后端交互
 async function jget(path) {

@@ -108,6 +108,11 @@ class KbSearchRequest(BaseModel):
     top_k: int = 5
 
 
+class AssistantRequest(BaseModel):
+    session: str = Field(default="default")
+    text: str
+
+
 # ----------------------------------------------------------------------------- routes
 @app.get("/api/health")
 def health():
@@ -140,6 +145,32 @@ def harness_packs():
 def presets():
     return {"presets": [{"key": k, "title": v["title"], "description": v["description"],
                          "expect": v["expect"]} for k, v in _presets().items()]}
+
+
+@app.post("/api/assistant/message")
+def assistant_message(req: AssistantRequest):
+    from app.assistant import service as asvc
+    if not req.text.strip():
+        raise HTTPException(400, "text 不能为空")
+    try:
+        return asvc.handle(req.session, req.text)
+    except Exception as exc:                      # 助手内部错误不让前端 500
+        raise HTTPException(500, f"assistant failed: {exc}")
+
+
+@app.get("/api/assistant/state")
+def assistant_state(session: str = Query("default")):
+    from app.assistant import service as asvc
+    st = asvc.state(session)
+    if st is None:
+        return {"session": session, "stage": "new", "turns": 0, "params": {}, "history": []}
+    return st
+
+
+@app.post("/api/assistant/reset")
+def assistant_reset(req: AssistantRequest):
+    from app.assistant import service as asvc
+    return asvc.reset(req.session)
 
 
 @app.get("/api/kb/stats")

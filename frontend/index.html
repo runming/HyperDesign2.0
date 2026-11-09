@@ -44,6 +44,7 @@
         <button class="tab active" data-tab="model">三维模型</button>
         <button class="tab" data-tab="rules">规则取证</button>
         <button class="tab" data-tab="kb">知识库</button>
+        <button class="tab" data-tab="ai">AI 助手</button>
       </div>
       <div class="vp-tools">
         <label class="chk"><input type="checkbox" id="toggle-wire" /> 线框</label>
@@ -73,6 +74,19 @@
       <div id="kb-results"></div>
       <h2 class="mt">可见文档 <span class="muted" id="kb-doc-count"></span></h2>
       <div id="kb-docs" class="skills"></div>
+    </div>
+    <div id="ai-wrap" class="rules-wrap hidden">
+      <div class="kb-bar">
+        <input type="text" id="ai-input" placeholder="例如：帮我设计一个 120×80×45 的 PC+ABS 传感器外壳；或：圆角改成 5.0" />
+        <button id="ai-send" class="primary">发送</button>
+        <button id="ai-reset">重置</button>
+      </div>
+      <div id="ai-meta" class="rules-summary"></div>
+      <div id="ai-log" class="ai-log"></div>
+      <div class="muted" style="margin-top:8px">
+        提示：前期说需求（含包络与工艺），中期说修改（壁厚/拔模/圆角/孔），后期说「定型」。
+        越界参数会被拒绝并给出依据，不会偷偷改。
+      </div>
     </div>
   </section>
 
