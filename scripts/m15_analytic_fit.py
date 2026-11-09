@@ -94,12 +94,13 @@ def main():
     ok5, d5 = False, "未找到机壳 STL"
     if produced:
         r5 = MA.analyze(produced[0], tol_mm=0.2)
-        ok5 = r5["planes"] >= 6
-        d5 = (f"{produced[0].name}：{r5['triangle_count']} 三角面 → 平面 {r5['planes']} 个、"
-              f"圆柱 {r5['cylinders']} 个" +
-              (f"（R={[c['radius'] for c in r5['features'] if c['kind'] == 'cylinder'][:3]}）"
-               if r5["cylinders"] else ""))
-    check("F5 真实机壳网格特征识别（平面 ≥6）", ok5, d5)
+        # 机壳主体是曲面细分（拔模面 + 圆角），单面面积占比天然很低；
+        # 因此这里只断言"能稳定识别出 ≥8 个面积占比 ≥1% 的主要平面"，并把实测占比如实写进报告。
+        ok5 = r5["major_planes"] >= 8
+        d5 = (f"{produced[0].name}：{r5['triangle_count']} 三角面 → 总面积口径下主要平面 "
+              f"{r5['major_planes']} 个（单面最大占比 {r5['top1_area_ratio']*100:.1f}%、"
+              f"前六面合计 {r5['top6_area_ratio']*100:.1f}%）、圆柱 {r5['cylinders']} 个")
+    check("F5 真实机壳主要平面按面积识别", ok5, d5)
 
     # F6 证书拦截（用含噪声的网格 + 极严容差，验证不会放行未验证几何）
     r3_strict = MA.certificate(r3["features"], tol_mm=0.0005)

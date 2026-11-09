@@ -277,6 +277,50 @@ def segment_cylinders(tris: np.ndarray, planes: List[Dict[str, Any]],
 
 
 # -------------------------------------------------------------------------------- 证书与分析
+def merge_coplanar(tris: np.ndarray, groups: List[Dict[str, Any]],
+                   angle_deg: float = 0.5, offset_mm: float = 0.15) -> List[Dict[str, Any]]:
+    """
+    合并共面小组：同一物理面常被法向噪声/偏移误差切成许多小片，需按
+    「法向夹角 ≤ 0.5° 且 面距 ≤ 0.15mm」合并后重新最小二乘拟合。
+    """
+    cos_tol = math.cos(math.radians(angle_deg))
+    merged: List[Dict[str, Any]] = []
+    for g in sorted(groups, key=lambda x: -x["triangles"]):
+        n_g = np.asarray(g["normal"], dtype=float)
+        placed = False
+        for m in merged:
+            n_m = np.asarray(m["normal"], dtype=float)
+            if abs(float(np.dot(n_g, n_m))) < cos_tol:
+                continue
+            if abs(float(g["offset"]) - float(m["offset"])) > offset_mm:
+                continue
+            m["_idx"] = np.concatenate([m["_idx"], g["_idx"]])
+            m["triangles"] += g["triangles"]
+            m["area_mm2"] = round(float(m["area_mm2"]) + float(g["area_mm2"]), 3)
+            placed = True
+            break
+        if not placed:
+            merged.append(dict(g, _idx=np.array(g["_idx"], dtype=int)))
+
+    # 合并后按各自点集重新拟合
+    out: List[Dict[str, Any]] = []
+    for m in merged:
+        pts = tris[m["_idx"]].reshape(-1, 3)
+        plane = fit_plane(pts)
+        n_ref = np.asarray(m["normal"], dtype=float)
+        if float(np.dot(plane["normal"], n_ref)) < 0:
+            plane["normal"] = -plane["normal"]
+            plane["offset"] = -plane["offset"]
+        out.append({"kind": "plane", "triangles": int(len(m["_idx"])),
+                    "area_mm2": m["area_mm2"],
+                    "normal": [float(x) for x in plane["normal"]],
+                    "offset": float(plane["offset"]),
+                    "rms": float(plane["rms"]), "max": float(plane["max"]),
+                    "point": [float(x) for x in plane["point"]],
+                    "_idx": m["_idx"]})
+    return sorted(out, key=lambda x: -x["triangles"])
+
+
 def certificate(features: List[Dict[str, Any]], tol_mm: float = 0.1) -> Dict[str, Any]:
     """逐特征给证书；任一超差即整体不通过（不放行未验证的几何）。"""
     rows = []
@@ -298,12 +342,17 @@ def analyze(path: Path, tol_mm: float = 0.1) -> Dict[str, Any]:
     for c in cyls:
         covered[c["_idx"]] = True
     rest = tris[~covered] if covered.any() else tris
-    planes = segment_planes(rest) if len(rest) else []
+    planes = merge_coplanar(rest, segment_planes(rest)) if len(rest) else []
     feats = planes + cyls
     cert = certificate(feats, tol_mm)
+    total_area = float(sum(p["area_mm2"] for p in planes)) or 1.0
+    major = [p for p in planes if p["area_mm2"] / total_area >= 0.01]
+    top1 = (planes[0]["area_mm2"] / total_area) if planes else 0.0
+    top6 = sum(p["area_mm2"] for p in planes[:6]) / total_area if planes else 0.0
     return {"triangle_count": int(len(tris)),
             "planes": len(planes), "cylinders": len(cyls),
-            "unclassified_triangles": int(covered.sum() * 0 + (len(tris) - covered.sum() - sum(p["triangles"] for p in planes))),
+            "major_planes": len(major), "top1_area_ratio": round(top1, 4),
+            "top6_area_ratio": round(top6, 4),
             "features": feats, "certificate": cert}
 
 
