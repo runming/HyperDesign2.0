@@ -1,9 +1,0 @@
-feat(assistant): 交互式 AI 助手（前期需求/中期修改/后期定型）+ 国标件吸附
-
-- backend/app/assistant/engine.py：中文意图解析 → IR 参数补丁 → 可行性复算 → 内核实测 → 准入裁决；
-  越界即拒（壁厚<2.4 / 拔模<1.8 / 圆角致内角失效），并给出所需下限；定型后冻结、可解冻
-- 派生参数自洽：包络变化时自动重算 立柱高度(H−墙厚)、导光窗位置、高厚比超限时抬高壁厚，
-  实测 130×90×50 自动得到 WALL 2.5 / POST_H 47.5 / LED_Z 46.6，重建单实体通过
-- backend/app/standards/tables.py：ISO 273 螺纹通孔/底孔、常用板厚序列、GB/T 1800.1 公差表
-- API：/api/assistant/message|state|reset；Studio 新增「AI 助手」对话页签
-- 门禁 scripts/m14_assistant_gate.py：10 项全通过；截图 docs/poc/shots/s10_ai_assistant.png
