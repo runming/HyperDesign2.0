@@ -1,6 +1,6 @@
 # M1 门禁报告 · Harness + Agent 信封 + Skill Registry
 
-- 时间：2026-11-10 01:26:53
+- 时间：2026-11-10 01:35:41
 - 结论：**通过**
 - 规则包：`housing_cad.v1`（CAD 几何）/ `housing_mesh.v1`（网格物理）/ `housing_rib.v1`（加强筋）
 
@@ -41,7 +41,7 @@
 |---|---|---|---|---|---|
 | dfm.mesh.watertight | error | failed | False | True | 运行 remesh / 补洞，或改用 CAD 实体回投白模 |
 | dfm.wall.p10 | error | failed | 1.51 | 2.4 | 增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案 |
-| dfm.wall.p90 | warning | failed | 5.99 | 4.5 | 掏空积料或改为筋板结构 |
+| dfm.wall.p90 | error | failed | 5.99 | 4.5 | 掏空积料或改为筋板结构 |
 | dfm.draft.median | error | failed | 0.84 | 1.8 | 重构造型或改用 CAD 实体（带拔模）作为最终交付 |
 | dfm.envelope.drift_y | error | failed | 0.637125 | 0.08 | 以白模仅作造型锚点，改由 CAD-IR 按目标包络重建 |
 | dfm.envelope.drift_z | error | failed | 3.292667 | 0.08 | 同上：白模降级为造型锚点 |

@@ -54,8 +54,9 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
 <div>· <b>M6</b> 参赛材料构建（申报书） —— <span style="color:#1e8e4a">通过</span></div>
 <div>· <b>M7</b> 设计空间可行性与跨产品族复用 —— <span style="color:#1e8e4a">通过</span></div>
 <div>· <b>M9</b> 平台层端到端性能 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M12</b> 规则引擎裁决质量评测 —— <span style="color:#1e8e4a">通过</span></div>
 </div><div class="pagebreak"></div><h1>M0 · 几何中间表示与解释器</h1><ul>
-<li>时间：2026-11-10 01:26:48</li>
+<li>时间：2026-11-10 01:35:36</li>
 <li>引擎：freecad_occt 1.1.4（FreeCAD 自带 OpenCascade）</li>
 <li>IR：<code>examples/sensor_housing.m0.ir.json</code>（4 个特征，全部走白名单算子）</li>
 <li>结论：<strong>通过</strong></li>
@@ -75,8 +76,8 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
 <table>
 <tr><th>特征</th><th>类型</th><th>耗时(ms)</th><th>状态</th></tr>
 <tr><td>f1_base</td><td>create_tapered_box</td><td>58</td><td>ok</td></tr>
-<tr><td>f2_shell</td><td>shell</td><td>269</td><td>ok</td></tr>
-<tr><td>f3_bosses</td><td>add_boss_pattern</td><td>1315</td><td>ok</td></tr>
+<tr><td>f2_shell</td><td>shell</td><td>270</td><td>ok</td></tr>
+<tr><td>f3_bosses</td><td>add_boss_pattern</td><td>1319</td><td>ok</td></tr>
 <tr><td>f4_led_window</td><td>add_cylinder</td><td>134</td><td>ok</td></tr>
 </table>
 <h2>语义引用映射（业务层只用这些名字，不碰 Edge1/Face3）</h2>
@@ -124,7 +125,7 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
   }
 }
 </pre><div class="pagebreak"></div><h1>M1 · 准入规则引擎与智能体信封</h1><ul>
-<li>时间：2026-11-10 01:26:53</li>
+<li>时间：2026-11-10 01:35:41</li>
 <li>结论：<strong>通过</strong></li>
 <li>规则包：<code>housing_cad.v1</code>（CAD 几何）/ <code>housing_mesh.v1</code>（网格物理）/ <code>housing_rib.v1</code>（加强筋）</li>
 </ul>
@@ -163,14 +164,14 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
 <tr><th>规则</th><th>级别</th><th>判定</th><th>实测</th><th>限值</th><th>建议动作</th></tr>
 <tr><td>dfm.mesh.watertight</td><td>error</td><td>failed</td><td>False</td><td>True</td><td>运行 remesh / 补洞，或改用 CAD 实体回投白模</td></tr>
 <tr><td>dfm.wall.p10</td><td>error</td><td>failed</td><td>1.51</td><td>2.4</td><td>增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案</td></tr>
-<tr><td>dfm.wall.p90</td><td>warning</td><td>failed</td><td>5.99</td><td>4.5</td><td>掏空积料或改为筋板结构</td></tr>
+<tr><td>dfm.wall.p90</td><td>error</td><td>failed</td><td>5.99</td><td>4.5</td><td>掏空积料或改为筋板结构</td></tr>
 <tr><td>dfm.draft.median</td><td>error</td><td>failed</td><td>0.84</td><td>1.8</td><td>重构造型或改用 CAD 实体（带拔模）作为最终交付</td></tr>
 <tr><td>dfm.envelope.drift_y</td><td>error</td><td>failed</td><td>0.637125</td><td>0.08</td><td>以白模仅作造型锚点，改由 CAD-IR 按目标包络重建</td></tr>
 <tr><td>dfm.envelope.drift_z</td><td>error</td><td>failed</td><td>3.292667</td><td>0.08</td><td>同上：白模降级为造型锚点</td></tr>
 </table>
 <blockquote>说明：规则只允许受控算子（<code>gte/lte/near/ratio_dev/between/in_set/all_of/any_of/not</code>），</blockquote>
 <blockquote>未知算子直接抛 <code>HarnessConfigError</code>；指标缺失一律判 <code>invalid</code>，不会按通过处理。</blockquote><div class="pagebreak"></div><h1>M2 · 工作流引擎、事件流与审批门</h1><ul>
-<li>时间：2026-11-10 01:27:00</li>
+<li>时间：2026-11-10 01:35:48</li>
 <li>结论：<strong>通过</strong></li>
 <li>工作流：<code>housing.design-to-delivery@1.0.0</code>（4 节点：CAD 构建 → CAD Harness → 网格 DFM Harness → 人工审批）</li>
 </ul>
@@ -191,13 +192,13 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
 <tr><td>1</td><td>run.created</td><td>-</td><td>{&quot;workflow&quot;: &quot;housing.design-to-delivery&quot;, &quot;version&quot;: &quot;1.1.0&quot;}</td></tr>
 <tr><td>2</td><td>run.started</td><td>-</td><td>{}</td></tr>
 <tr><td>3</td><td>node.started</td><td>n1_cad_build</td><td>{&quot;type&quot;: &quot;skill&quot;, &quot;skill&quot;: &quot;cad.ir.build&quot;}</td></tr>
-<tr><td>4</td><td>node.finished</td><td>n1_cad_build</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 2108}</td></tr>
+<tr><td>4</td><td>node.finished</td><td>n1_cad_build</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 2103}</td></tr>
 <tr><td>5</td><td>node.started</td><td>n2_cad_harness</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_cad.v1.json&quot;}</td></tr>
-<tr><td>6</td><td>node.finished</td><td>n2_cad_harness</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 3}</td></tr>
+<tr><td>6</td><td>node.finished</td><td>n2_cad_harness</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 0}</td></tr>
 <tr><td>7</td><td>node.started</td><td>n3_mesh_dfm</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_mesh.v1.json&quot;}</td></tr>
-<tr><td>8</td><td>node.finished</td><td>n3_mesh_dfm</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 0}</td></tr>
+<tr><td>8</td><td>node.finished</td><td>n3_mesh_dfm</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 3}</td></tr>
 <tr><td>9</td><td>node.started</td><td>n3b_cae</td><td>{&quot;type&quot;: &quot;skill&quot;, &quot;skill&quot;: &quot;cae.hole.plate&quot;}</td></tr>
-<tr><td>10</td><td>node.finished</td><td>n3b_cae</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 335}</td></tr>
+<tr><td>10</td><td>node.finished</td><td>n3b_cae</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 329}</td></tr>
 <tr><td>11</td><td>node.started</td><td>n3c_cae_harness</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_cae.v1.json&quot;}</td></tr>
 <tr><td>12</td><td>node.finished</td><td>n3c_cae_harness</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 0}</td></tr>
 <tr><td>13</td><td>run.approval_required</td><td>n4_human_approval</td><td>{&quot;role&quot;: &quot;mechanical_engineer&quot;, &quot;title&quot;: &quot;⑥ 人工验收（工程师签字放行）&quot;}</td></tr>
@@ -441,5 +442,42 @@ blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0;
 <tr><td>工艺检索与铁律校验</td><td>75.9s（整段大模型推理）</td><td>0.02s 检索 + 毫秒级规则判定</td></tr>
 </table>
 <blockquote>说明：本表只测量 2.0 平台层；概念图与三维重建属 1.0 生成式能力层，需 GPU 环境，不在本脚本范围。</blockquote>
-<blockquote>1.0 的数字取自 <code>progress.log</code> 时间戳，可回溯核对。</blockquote>
+<blockquote>1.0 的数字取自 <code>progress.log</code> 时间戳，可回溯核对。</blockquote><div class="pagebreak"></div><h1>M12 · 规则引擎裁决质量评测</h1><ul>
+<li>结论：<strong>通过</strong></li>
+<li>用例：20 个（应通过 8 / 应失败 10 / 应无效 2），覆盖 4 个规则包</li>
+<li>准确率：<strong>20/20 = 100.0%</strong>；误报 0、漏报 0</li>
+</ul>
+<h2>分规则包</h2>
+<table>
+<tr><th>规则包</th><th>用例</th><th>判对</th><th>准确率</th></tr>
+<tr><td>housing_cad</td><td>7</td><td>7</td><td>100%</td></tr>
+<tr><td>housing_mesh</td><td>7</td><td>7</td><td>100%</td></tr>
+<tr><td>housing_cae</td><td>4</td><td>4</td><td>100%</td></tr>
+<tr><td>bracket_cad</td><td>2</td><td>2</td><td>100%</td></tr>
+</table>
+<h2>逐用例</h2>
+<table>
+<tr><th>规则包</th><th>用例</th><th>说明</th><th>期望</th><th>实得</th><th>结论</th></tr>
+<tr><td>housing_cad</td><td>合规注塑件（基准）</td><td>全部指标达标</td><td>passed</td><td>passed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>X 向包络超差 3mm</td><td>超出 ±1.5mm</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>底面未坐平</td><td>Z_min=1.0 超出 ±0.01</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>实体数为 2（未合并）</td><td>应为单实体</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>拔模角 1.2° 不足</td><td>低于 1.8°</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>存在零度直壁 2 处</td><td>卡模风险</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cad</td><td>缺失实测拔模数据</td><td>无测量不得判通过</td><td>invalid</td><td>invalid</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>合规网格</td><td>全部达标</td><td>passed</td><td>passed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>非水密网格</td><td>不可切片</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>薄壁 p10=1.51</td><td>低于 2.4mm</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>肥厚 p90=5.2</td><td>缩水纹风险</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>拔模中位 0.84°</td><td>低于 1.8°</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>Y 向包络漂移 64%</td><td>严重失配</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_mesh</td><td>缺失 p10 壁厚</td><td>无测量不得判通过</td><td>invalid</td><td>invalid</td><td>✅</td></tr>
+<tr><td>housing_cae</td><td>合规仿真结果</td><td>已对标且应力达标</td><td>passed</td><td>passed</td><td>✅</td></tr>
+<tr><td>housing_cae</td><td>仿真未与理论解对标</td><td>结果不可信</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cae</td><td>Kt=5.0 偏离经典解</td><td>超出 [2,4]</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>housing_cae</td><td>孔边应力 31MPa 超许用</td><td>许用 25MPa</td><td>failed</td><td>failed</td><td>✅</td></tr>
+<tr><td>bracket_cad</td><td>合规铝合金支架</td><td>全部达标</td><td>passed</td><td>passed</td><td>✅</td></tr>
+<tr><td>bracket_cad</td><td>支架 Z 向包络 48（应 44）</td><td>超出 ±0.5mm</td><td>failed</td><td>failed</td><td>✅</td></tr>
+</table>
+<blockquote>意义：规则引擎的价值不在于规则条数，而在于<strong>判得对且不乱报</strong>。本评测用人工标注用例给出误报/漏报，任何人可复跑 <code>scripts/m12_rule_eval.py</code> 复核。</blockquote>
 </body></html>

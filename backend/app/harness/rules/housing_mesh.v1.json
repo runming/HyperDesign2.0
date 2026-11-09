@@ -18,10 +18,21 @@
       "severity": "error",
       "stage": "dfm",
       "blocking": true,
-      "check": {"op": "eq", "left": {"metric": "mesh.is_watertight"}, "right": {"const": true}},
+      "check": {
+        "op": "eq",
+        "left": {
+          "metric": "mesh.is_watertight"
+        },
+        "right": {
+          "const": true
+        }
+      },
       "message": "网格非水密：存在开放边界，无法用于切片与模流分析",
       "suggested_action": "运行 remesh / 补洞，或改用 CAD 实体回投白模",
-      "citation": {"document": "交付验收内控", "clause": "网格水密性检查（Manifold）"}
+      "citation": {
+        "document": "交付验收内控",
+        "clause": "网格水密性检查（Manifold）"
+      }
     },
     {
       "rule_id": "dfm.wall.p10",
@@ -31,8 +42,14 @@
       "blocking": true,
       "check": {
         "op": "gte",
-        "left": {"metric": "mesh.p10_wall_mm", "unit": "mm"},
-        "right": {"metric": "process.min_wall_mm", "unit": "mm"}
+        "left": {
+          "metric": "mesh.p10_wall_mm",
+          "unit": "mm"
+        },
+        "right": {
+          "metric": "process.min_wall_mm",
+          "unit": "mm"
+        }
       },
       "message": "存在薄壁区，注塑欠注风险",
       "suggested_action": "增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案",
@@ -45,15 +62,21 @@
     {
       "rule_id": "dfm.wall.p90",
       "title": "壁厚 p90 分位不超过 4.5mm（避免缩水纹）",
-      "severity": "warning",
+      "severity": "error",
       "stage": "dfm",
-      "blocking": false,
+      "blocking": true,
       "check": {
         "op": "lte",
-        "left": {"metric": "mesh.p90_wall_mm", "unit": "mm"},
-        "right": {"metric": "process.max_bulk_wall_mm", "unit": "mm"}
+        "left": {
+          "metric": "mesh.p90_wall_mm",
+          "unit": "mm"
+        },
+        "right": {
+          "metric": "process.max_bulk_wall_mm",
+          "unit": "mm"
+        }
       },
-      "message": "存在肥厚积料区，表面易出现缩水纹",
+      "message": "壁厚 p90 分位超过 4.5mm 肥厚积料区（缩水纹风险），按企业规范直接判不通过",
       "suggested_action": "掏空积料或改为筋板结构",
       "citation": {
         "document": "内部注塑工艺规范_v2.4.pdf",
@@ -69,12 +92,21 @@
       "blocking": true,
       "check": {
         "op": "gte",
-        "left": {"metric": "mesh.median_draft_deg", "unit": "deg"},
-        "right": {"metric": "process.min_draft_deg", "unit": "deg"}
+        "left": {
+          "metric": "mesh.median_draft_deg",
+          "unit": "deg"
+        },
+        "right": {
+          "metric": "process.min_draft_deg",
+          "unit": "deg"
+        }
       },
       "message": "立面拔模不足，脱模困难",
       "suggested_action": "重构造型或改用 CAD 实体（带拔模）作为最终交付",
-      "citation": {"document": "内部注塑工艺规范_v2.4.pdf", "clause": "拔模斜度统一要求 ≥ 1.8°"}
+      "citation": {
+        "document": "内部注塑工艺规范_v2.4.pdf",
+        "clause": "拔模斜度统一要求 ≥ 1.8°"
+      }
     },
     {
       "rule_id": "dfm.envelope.drift_y",
@@ -84,13 +116,22 @@
       "blocking": true,
       "check": {
         "op": "ratio_dev",
-        "left": {"metric": "mesh.bbox_mm.y", "unit": "mm"},
-        "right": {"metric": "target.bbox_mm.y", "unit": "mm"},
+        "left": {
+          "metric": "mesh.bbox_mm.y",
+          "unit": "mm"
+        },
+        "right": {
+          "metric": "target.bbox_mm.y",
+          "unit": "mm"
+        },
         "max_ratio": 0.08
       },
       "message": "生成式白模的 Y 向比例失真超过 8%，不能直接作为制造依据",
       "suggested_action": "以白模仅作造型锚点，改由 CAD-IR 按目标包络重建",
-      "citation": {"document": "HyperDesign 工程规范", "clause": "包络漂移 >8% 判为造型失真"}
+      "citation": {
+        "document": "HyperDesign 工程规范",
+        "clause": "包络漂移 >8% 判为造型失真"
+      }
     },
     {
       "rule_id": "dfm.envelope.drift_z",
@@ -100,13 +141,22 @@
       "blocking": true,
       "check": {
         "op": "ratio_dev",
-        "left": {"metric": "mesh.bbox_mm.z", "unit": "mm"},
-        "right": {"metric": "target.bbox_mm.z", "unit": "mm"},
+        "left": {
+          "metric": "mesh.bbox_mm.z",
+          "unit": "mm"
+        },
+        "right": {
+          "metric": "target.bbox_mm.z",
+          "unit": "mm"
+        },
         "max_ratio": 0.08
       },
       "message": "生成式白模的 Z 向比例失真超过 8%，不能直接作为制造依据",
       "suggested_action": "同上：白模降级为造型锚点",
-      "citation": {"document": "HyperDesign 工程规范", "clause": "包络漂移 >8% 判为造型失真"}
+      "citation": {
+        "document": "HyperDesign 工程规范",
+        "clause": "包络漂移 >8% 判为造型失真"
+      }
     }
   ]
 }

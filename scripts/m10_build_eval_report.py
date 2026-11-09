@@ -27,6 +27,7 @@ REPORTS = [
     ("M6", "参赛材料构建（申报书）", "M6-GATE-REPORT.md"),
     ("M7", "设计空间可行性与跨产品族复用", "M7-GATE-REPORT.md"),
     ("M9", "平台层端到端性能", "M9-PERF.md"),
+    ("M12", "规则引擎裁决质量评测", "M12-RULE-EVAL.md"),
 ]
 
 
