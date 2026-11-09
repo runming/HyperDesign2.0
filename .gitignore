@@ -25,3 +25,6 @@ logs/
 _ref/
 _ref_mechanical/
 dist/
+
+# 终检渲染产物（可随时重生成）
+docs/_audit/
