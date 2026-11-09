@@ -1,0 +1,445 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8" />
+<title>HyperDesign 2.0 评测报告</title><style>
+@page { size: A4; margin: 16mm 14mm 14mm 14mm; }
+body { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; font-size: 9.6pt; line-height: 1.6;
+       color: #16222c; margin: 0; }
+h1 { font-size: 17pt; margin: 0 0 6px; color: #0d1b2a; }
+h2 { font-size: 13pt; margin: 18px 0 6px; padding: 5px 9px; background: #0d1b2a; color: #fff;
+     page-break-after: avoid; border-radius: 3px; }
+h3 { font-size: 10.6pt; margin: 12px 0 4px; color: #0a5f8f; page-break-after: avoid; }
+h4 { font-size: 9.8pt; margin: 9px 0 3px; color: #0a5f8f; }
+p { margin: 4px 0; text-align: justify; }
+ul { margin: 3px 0; padding-left: 18px; }
+li { margin: 2px 0; }
+table { width: 100%; border-collapse: collapse; margin: 6px 0 8px; font-size: 8.8pt; page-break-inside: auto; }
+th { background: #e8f0f7; text-align: left; padding: 4px 6px; border: 1px solid #c9d8e4; }
+td { padding: 3px 6px; border: 1px solid #dbe6ee; vertical-align: top; word-break: break-word; }
+code { font-family: Consolas, monospace; background: #f0f4f7; padding: 0 3px; border-radius: 2px; font-size: 8.6pt; }
+pre { background: #0d1b2a; color: #d7e6f2; padding: 8px 10px; border-radius: 4px; font-size: 8pt;
+      white-space: pre-wrap; word-break: break-all; }
+blockquote { border-left: 4px solid #00a8ff; background: #f4fafd; margin: 6px 0; padding: 5px 10px; color: #2a4457; }
+.cover { text-align: center; padding-top: 90px; }
+.cover h1 { font-size: 24pt; }
+.cover .sub { color: #4a5c6b; font-size: 11pt; margin: 8px 0 30px; }
+.cover .meta { font-size: 9.4pt; color: #61727f; line-height: 2; }
+.badge { display: inline-block; border: 1px solid #2ecc71; color: #1e8e4a; border-radius: 10px;
+         padding: 1px 8px; font-size: 8.6pt; margin: 0 3px; }
+.pagebreak { page-break-before: always; }
+.toc { font-size: 10pt; line-height: 1.9; }
+.toc a { color: #0a5f8f; text-decoration: none; }
+</style></head><body>
+
+<div class="cover">
+  <h1>HyperDesign 2.0 评测报告</h1>
+  <div class="sub">门禁脚本可复跑 · 结论可追溯 · 数据可复算</div>
+  <div><span class="badge">M0 几何</span><span class="badge">M1 准入</span><span class="badge">M2 工作流</span>
+  <span class="badge">M3 界面</span><span class="badge">M4 仿真</span><span class="badge">M5 知识</span>
+  <span class="badge">M6 材料</span><span class="badge">M7 可行性与复用</span><span class="badge">M9 性能</span></div>
+  <div class="meta" style="margin-top:36px">
+    被测系统：HyperDesign 2.0（v2.0.0-m3）<br/>
+    测试环境：单台工作站（Windows + FreeCAD 1.1 + Python 3.12，无外部服务依赖）<br/>
+    测试方式：每个阶段独立脚本 + 真浏览器实测，全部可复跑<br/>
+    报告构成：9 份门禁报告原文合并，未做删改
+  </div>
+</div>
+<div class="pagebreak"></div>
+<h2>目录与总体结论</h2>
+<div class="toc">
+<div>· <b>M0</b> 几何中间表示与解释器 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M1</b> 准入规则引擎与智能体信封 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M2</b> 工作流引擎、事件流与审批门 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M3</b> 交互界面（真浏览器实测） —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M4</b> 数值仿真（CAE）与理论解对标 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M5</b> 知识资产平台 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M6</b> 参赛材料构建（申报书） —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M7</b> 设计空间可行性与跨产品族复用 —— <span style="color:#1e8e4a">通过</span></div>
+<div>· <b>M9</b> 平台层端到端性能 —— <span style="color:#1e8e4a">通过</span></div>
+</div><div class="pagebreak"></div><h1>M0 · 几何中间表示与解释器</h1><ul>
+<li>时间：2026-11-10 01:26:48</li>
+<li>引擎：freecad_occt 1.1.4（FreeCAD 自带 OpenCascade）</li>
+<li>IR：<code>examples/sensor_housing.m0.ir.json</code>（4 个特征，全部走白名单算子）</li>
+<li>结论：<strong>通过</strong></li>
+</ul>
+<table>
+<tr><th>门禁</th><th>检查项</th><th>结果</th><th>证据</th></tr>
+<tr><td>G0</td><td>解释器可执行</td><td>✅</td><td>引擎 freecad_occt 1.1.4</td></tr>
+<tr><td>G1</td><td>两次重建确定性</td><td>✅</td><td>体积偏差 0.0000% / 包围盒最大偏差 0.0000 mm</td></tr>
+<tr><td>G2</td><td>B-Rep 合法且单实体</td><td>✅</td><td>isValid=True, solids=1, shells=1, faces=220</td></tr>
+<tr><td>G3</td><td>包络与基准面</td><td>✅</td><td>120.0 × 80.0 × 45.0 mm, Z_min=0.0, 体积 67,510.058 mm³</td></tr>
+<tr><td>G4</td><td>CAD 几何级拔模角</td><td>✅</td><td>min=1.8°, median=1.8°, 垂直面=0, 侧壁面数=8</td></tr>
+<tr><td>G5</td><td>拒绝任意代码执行</td><td>✅</td><td>ok=None, 错误包含 CAD_FEATURE_UNSUPPORTED=True</td></tr>
+<tr><td>G6</td><td>算子均被引擎能力声明支持</td><td>✅</td><td>使用 [&#x27;add_boss_pattern&#x27;, &#x27;add_cylinder&#x27;, &#x27;create_tapered_box&#x27;, &#x27;shell&#x27;]；缺失 []</td></tr>
+<tr><td>G7</td><td>STEP/STL 产物落盘</td><td>✅</td><td>STEP 388735 B / STL 1387378 B</td></tr>
+</table>
+<h2>特征级耗时</h2>
+<table>
+<tr><th>特征</th><th>类型</th><th>耗时(ms)</th><th>状态</th></tr>
+<tr><td>f1_base</td><td>create_tapered_box</td><td>58</td><td>ok</td></tr>
+<tr><td>f2_shell</td><td>shell</td><td>269</td><td>ok</td></tr>
+<tr><td>f3_bosses</td><td>add_boss_pattern</td><td>1315</td><td>ok</td></tr>
+<tr><td>f4_led_window</td><td>add_cylinder</td><td>134</td><td>ok</td></tr>
+</table>
+<h2>语义引用映射（业务层只用这些名字，不碰 Edge1/Face3）</h2>
+<pre>
+{
+  &quot;body&quot;: &quot;body&quot;,
+  &quot;draft_inset_mm&quot;: 1.4142,
+  &quot;corner_radius_bottom&quot;: 4.5,
+  &quot;corner_radius_top&quot;: 3.0858,
+  &quot;top_span&quot;: [
+    117.1716,
+    77.1716
+  ],
+  &quot;shell&quot;: &quot;cavity_cut&quot;,
+  &quot;wall_mm&quot;: 2.4,
+  &quot;inner_corner_r_bottom&quot;: 2.13,
+  &quot;inner_corner_r_top&quot;: 0.76,
+  &quot;top_wall_z&quot;: 42.599,
+  &quot;warnings&quot;: [],
+  &quot;bosses&quot;: &quot;count:4&quot;,
+  &quot;cut_cylinders&quot;: &quot;count:1&quot;
+}
+</pre>
+<h2>几何元数据</h2>
+<pre>
+{
+  &quot;is_valid&quot;: true,
+  &quot;volume_mm3&quot;: 67510.058,
+  &quot;surface_area_mm2&quot;: 57579.74,
+  &quot;bbox_mm&quot;: {
+    &quot;x&quot;: 120.0,
+    &quot;y&quot;: 80.0,
+    &quot;z&quot;: 45.0
+  },
+  &quot;z_min&quot;: 0.0,
+  &quot;faces&quot;: 220,
+  &quot;edges&quot;: 627,
+  &quot;dfm&quot;: {
+    &quot;measured&quot;: true,
+    &quot;planar_side_faces&quot;: 8,
+    &quot;min_draft_deg&quot;: 1.8,
+    &quot;median_draft_deg&quot;: 1.8,
+    &quot;vertical_face_count&quot;: 0,
+    &quot;pull_direction&quot;: &quot;+Z&quot;
+  }
+}
+</pre><div class="pagebreak"></div><h1>M1 · 准入规则引擎与智能体信封</h1><ul>
+<li>时间：2026-11-10 01:26:53</li>
+<li>结论：<strong>通过</strong></li>
+<li>规则包：<code>housing_cad.v1</code>（CAD 几何）/ <code>housing_mesh.v1</code>（网格物理）/ <code>housing_rib.v1</code>（加强筋）</li>
+</ul>
+<table>
+<tr><th>门禁</th><th>检查项</th><th>结果</th><th>证据</th></tr>
+<tr><td>H1</td><td>规则包可加载且条款引用完整</td><td>✅</td><td>3 包 / 17 条规则 / 17 条带文档引用</td></tr>
+<tr><td>H2</td><td>真实 CAD-IR 产物通过 CAD 规则包</td><td>✅</td><td>verdict=passed, 规则 10 条, 阻断失败=[]</td></tr>
+<tr><td>H2b</td><td>拔模规则取到实测值（非图纸标注）</td><td>✅</td><td>actual=1.8° vs limit=1.8°, citation=拔模斜度统一要求 ≥ 1.8°</td></tr>
+<tr><td>H3</td><td>v1 生成式白模被物理规则否决</td><td>✅</td><td>verdict=failed, 命中=[&#x27;dfm.draft.median&#x27;, &#x27;dfm.envelope.drift_y&#x27;, &#x27;dfm.envelope.drift_z&#x27;, &#x27;dfm.mesh.watertight&#x27;, &#x27;dfm.wall.p10&#x27;, &#x27;dfm.wall.p90&#x27;]</td></tr>
+<tr><td>H3b</td><td>薄壁证据可追溯（实测 1.51mm vs 2.4mm 条款）</td><td>✅</td><td>actual=1.51mm limit=2.4mm action=增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案</td></tr>
+<tr><td>H4</td><td>规则方向正确（合规数据可通过）</td><td>✅</td><td>verdict=passed（对照：证明 H3 的失败来自数据而非规则写死）</td></tr>
+<tr><td>H5</td><td>指标缺失判 invalid（绝不按通过处理）</td><td>✅</td><td>verdict=invalid, invalid 规则=[&#x27;dfm.wall.p10&#x27;, &#x27;dfm.wall.p90&#x27;, &#x27;dfm.draft.median&#x27;]</td></tr>
+<tr><td>H6</td><td>非法算子被拒绝（规则不能执行代码）</td><td>✅</td><td>evil.exec: 未注册的算子 &#x27;eval&#x27;（可用：all_of, any_of, between, eq, exists, gt, gte, in_set, lt, lte, near, neq, not, ratio_dev）</td></tr>
+<tr><td>H7</td><td>加强筋 60% 规则（1.60 失败 / 1.40 通过）</td><td>✅</td><td>1.60mm -&gt; failed; 1.40mm -&gt; passed</td></tr>
+<tr><td>H8</td><td>Agent 信封合法通过 / 非法拒绝</td><td>✅</td><td>合法 envelope citations=1；非法用例=全部正确拒绝</td></tr>
+<tr><td>H9</td><td>Agent 越权调用被拒（白名单生效）</td><td>✅</td><td>Agent &#x27;cad_agent&#x27; 无权调用技能 &#x27;phase5.raw_python&#x27;（允许：[&#x27;cad.ir.*&#x27;, &#x27;harness.evaluate&#x27;]）</td></tr>
+<tr><td>H10</td><td>Skill Registry 错误码与确定性计算</td><td>✅</td><td>未知技能=SKILL_NOT_FOUND / 缺字段=SKILL_INPUT_INVALID / σ_vm=137.737MPa n=2.577</td></tr>
+<tr><td>H11</td><td>技能串联（CAD 构建 -&gt; Harness 判定）</td><td>✅</td><td>build.ok=True, verdict=passed, 耗时 2.1s</td></tr>
+</table>
+<h2>CAD 规则包逐条裁决（真实 CAD-IR 产物）</h2>
+<table>
+<tr><th>规则</th><th>级别</th><th>判定</th><th>实测</th><th>限值</th><th>单位</th></tr>
+<tr><td>cad.brep.valid</td><td>critical</td><td>passed</td><td>True</td><td>True</td><td>bool</td></tr>
+<tr><td>cad.solid.single</td><td>error</td><td>passed</td><td>1</td><td>1</td><td></td></tr>
+<tr><td>cad.envelope.x</td><td>error</td><td>passed</td><td>120.0</td><td>120.0</td><td>mm</td></tr>
+<tr><td>cad.envelope.y</td><td>error</td><td>passed</td><td>80.0</td><td>80.0</td><td>mm</td></tr>
+<tr><td>cad.envelope.z</td><td>error</td><td>passed</td><td>45.0</td><td>45.0</td><td>mm</td></tr>
+<tr><td>cad.seat.flat</td><td>error</td><td>passed</td><td>0.0</td><td>0.0</td><td>mm</td></tr>
+<tr><td>cad.draft.measured</td><td>error</td><td>passed</td><td>True</td><td>True</td><td></td></tr>
+<tr><td>cad.draft.min</td><td>error</td><td>passed</td><td>1.8</td><td>1.8</td><td>deg</td></tr>
+<tr><td>cad.draft.vertical_faces</td><td>error</td><td>passed</td><td>0</td><td>0</td><td></td></tr>
+<tr><td>cad.volume.sane</td><td>warning</td><td>passed</td><td>67510.058</td><td>[1000.0, 5000000.0]</td><td>mm³</td></tr>
+</table>
+<h2>网格规则包逐条裁决（v1 生成式白模实测数据）</h2>
+<table>
+<tr><th>规则</th><th>级别</th><th>判定</th><th>实测</th><th>限值</th><th>建议动作</th></tr>
+<tr><td>dfm.mesh.watertight</td><td>error</td><td>failed</td><td>False</td><td>True</td><td>运行 remesh / 补洞，或改用 CAD 实体回投白模</td></tr>
+<tr><td>dfm.wall.p10</td><td>error</td><td>failed</td><td>1.51</td><td>2.4</td><td>增加薄壁处料厚至 ≥2.4mm，或更换为更大壁厚的基体方案</td></tr>
+<tr><td>dfm.wall.p90</td><td>warning</td><td>failed</td><td>5.99</td><td>4.5</td><td>掏空积料或改为筋板结构</td></tr>
+<tr><td>dfm.draft.median</td><td>error</td><td>failed</td><td>0.84</td><td>1.8</td><td>重构造型或改用 CAD 实体（带拔模）作为最终交付</td></tr>
+<tr><td>dfm.envelope.drift_y</td><td>error</td><td>failed</td><td>0.637125</td><td>0.08</td><td>以白模仅作造型锚点，改由 CAD-IR 按目标包络重建</td></tr>
+<tr><td>dfm.envelope.drift_z</td><td>error</td><td>failed</td><td>3.292667</td><td>0.08</td><td>同上：白模降级为造型锚点</td></tr>
+</table>
+<blockquote>说明：规则只允许受控算子（<code>gte/lte/near/ratio_dev/between/in_set/all_of/any_of/not</code>），</blockquote>
+<blockquote>未知算子直接抛 <code>HarnessConfigError</code>；指标缺失一律判 <code>invalid</code>，不会按通过处理。</blockquote><div class="pagebreak"></div><h1>M2 · 工作流引擎、事件流与审批门</h1><ul>
+<li>时间：2026-11-10 01:27:00</li>
+<li>结论：<strong>通过</strong></li>
+<li>工作流：<code>housing.design-to-delivery@1.0.0</code>（4 节点：CAD 构建 → CAD Harness → 网格 DFM Harness → 人工审批）</li>
+</ul>
+<table>
+<tr><th>门禁</th><th>检查项</th><th>结果</th><th>证据</th></tr>
+<tr><td>W1</td><td>工作流定义可加载、拓扑无环</td><td>✅</td><td>housing.design-to-delivery@1.1.0 节点 [&#x27;n1_cad_build&#x27;, &#x27;n2_cad_harness&#x27;, &#x27;n3_mesh_dfm&#x27;, &#x27;n3b_cae&#x27;, &#x27;n3c_cae_harness&#x27;, &#x27;n4_human_approval&#x27;]</td></tr>
+<tr><td>W2</td><td>合规数据跑到审批门</td><td>✅</td><td>run=waiting_approval nodes={&#x27;n1_cad_build&#x27;: &#x27;ok&#x27;, &#x27;n2_cad_harness&#x27;: &#x27;ok&#x27;, &#x27;n3_mesh_dfm&#x27;: &#x27;ok&#x27;, &#x27;n3b_cae&#x27;: &#x27;ok&#x27;, &#x27;n3c_cae_harness&#x27;: &#x27;ok&#x27;, &#x27;n4_human_approval&#x27;: &#x27;waiting_approval&#x27;}</td></tr>
+<tr><td>W3</td><td>审批通过后 run 成功</td><td>✅</td><td>run=succeeded approver=张工</td></tr>
+<tr><td>W4</td><td>审批驳回后 run 失败</td><td>✅</td><td>run=failed error=审批驳回：外观评审未过</td></tr>
+<tr><td>W5</td><td>白模物理 DFM 不达标即阻断（审批门永不打开）</td><td>✅</td><td>run=failed, n3=failed, 违规规则=[&#x27;dfm.mesh.watertight&#x27;, &#x27;dfm.wall.p10&#x27;, &#x27;dfm.wall.p90&#x27;, &#x27;dfm.draft.median&#x27;, &#x27;dfm.envelope.drift_y&#x27;, &#x27;dfm.envelope.drift_z&#x27;], 审批节点=skipped</td></tr>
+<tr><td>W6</td><td>非法 CAD-IR 在 n1 被拒且后续节点跳过</td><td>✅</td><td>run=failed, n1=failed, n2=skipped, n4=skipped</td></tr>
+<tr><td>W7</td><td>事件流单调/可重放/可补拉/落盘/SSE</td><td>✅</td><td>16 事件, seq 1..16 单调=True, 补拉 7 条, jsonl=True</td></tr>
+<tr><td>W8</td><td>幂等约束（重复 run_id / 已结束续跑均拒绝）</td><td>✅</td><td>重复 run_id 被拒=True, 已结束续跑被拒=True</td></tr>
+</table>
+<h2>事件流（合规数据这一跑）</h2>
+<table>
+<tr><th>seq</th><th>事件</th><th>节点</th><th>关键负载</th></tr>
+<tr><td>1</td><td>run.created</td><td>-</td><td>{&quot;workflow&quot;: &quot;housing.design-to-delivery&quot;, &quot;version&quot;: &quot;1.1.0&quot;}</td></tr>
+<tr><td>2</td><td>run.started</td><td>-</td><td>{}</td></tr>
+<tr><td>3</td><td>node.started</td><td>n1_cad_build</td><td>{&quot;type&quot;: &quot;skill&quot;, &quot;skill&quot;: &quot;cad.ir.build&quot;}</td></tr>
+<tr><td>4</td><td>node.finished</td><td>n1_cad_build</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 2108}</td></tr>
+<tr><td>5</td><td>node.started</td><td>n2_cad_harness</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_cad.v1.json&quot;}</td></tr>
+<tr><td>6</td><td>node.finished</td><td>n2_cad_harness</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 3}</td></tr>
+<tr><td>7</td><td>node.started</td><td>n3_mesh_dfm</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_mesh.v1.json&quot;}</td></tr>
+<tr><td>8</td><td>node.finished</td><td>n3_mesh_dfm</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 0}</td></tr>
+<tr><td>9</td><td>node.started</td><td>n3b_cae</td><td>{&quot;type&quot;: &quot;skill&quot;, &quot;skill&quot;: &quot;cae.hole.plate&quot;}</td></tr>
+<tr><td>10</td><td>node.finished</td><td>n3b_cae</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 335}</td></tr>
+<tr><td>11</td><td>node.started</td><td>n3c_cae_harness</td><td>{&quot;type&quot;: &quot;harness&quot;, &quot;skill&quot;: &quot;backend/app/harness/rules/housing_cae.v1.json&quot;}</td></tr>
+<tr><td>12</td><td>node.finished</td><td>n3c_cae_harness</td><td>{&quot;status&quot;: &quot;ok&quot;, &quot;elapsed_ms&quot;: 0}</td></tr>
+<tr><td>13</td><td>run.approval_required</td><td>n4_human_approval</td><td>{&quot;role&quot;: &quot;mechanical_engineer&quot;, &quot;title&quot;: &quot;⑥ 人工验收（工程师签字放行）&quot;}</td></tr>
+<tr><td>14</td><td>run.approved</td><td>-</td><td>{&quot;approver&quot;: &quot;张工&quot;, &quot;comment&quot;: &quot;几何与工艺均达标，放行&quot;}</td></tr>
+<tr><td>15</td><td>run.started</td><td>-</td><td>{}</td></tr>
+<tr><td>16</td><td>run.succeeded</td><td>-</td><td>{}</td></tr>
+</table><div class="pagebreak"></div><h1>M3 · 交互界面（真浏览器实测）</h1><ul>
+<li>结论：<strong>通过</strong></li>
+<li>截图：<code>docs/poc/shots/</code>（9 张）</li>
+</ul>
+<table>
+<tr><th>检查</th><th>结果</th><th>证据</th></tr>
+<tr><td>U1 页面加载并连上后端</td><td>✅</td><td>后端在线 · v2.0.0-m3 · 工作流 housing.design-to-delivery@1.1.0 · CAD 引擎 freecad_occt</td></tr>
+<tr><td>U2 Skill 清单渲染</td><td>✅</td><td>6 个技能</td></tr>
+<tr><td>U3 运行到审批门</td><td>✅</td><td>pill=waiting_approval</td></tr>
+<tr><td>U4 节点状态渲染</td><td>✅</td><td>n1_cad_build</td><td>n2_cad_harness</td><td>n3_mesh_dfm</td><td>n3b_cae</td><td>n3c_cae_harness</td><td>n4_human_approval</td></tr>
+<tr><td>U5 三维包络 HUD</td><td>✅</td><td>包络 (mm)  X 120.00   Y 80.00   Z 45.00 / 底面 Z = 0.000   质心 (0.0, 0.0, 22.5) / 单位 mm · 左键旋转 / 右键平移 / 滚轮缩放</td></tr>
+<tr><td>U6 规则取证表渲染</td><td>✅</td><td>19 行, 判定=[&#x27;passed&#x27;]</td></tr>
+<tr><td>U7 审批通过后状态 succeeded</td><td>✅</td><td>审批结论：通过 · 审批人 工程师</td></tr>
+</table>
+<p>几何与工艺达标，放行 |</p>
+<table>
+<tr><th>U8 白模失败剧本：规则表出现失败行且含条款引用</th><th>✅</th><th>6 行失败, 文档引用=True, 条款=True</th></tr>
+<tr><td>U9 恶意 IR 被拒且后续节点跳过</td><td>✅</td><td>n1_cad_build</td><td>failed · 105 ms</td><td>NODE_FAILED: WorkflowError: SKILL_FAILED: 技能 &#x27;cad.ir.build&#x27; 返回 ok=false：[</td><td>n2_cad_harness</td><td>skipped · —</td></tr>
+</table><div class="pagebreak"></div><h1>M4 · 数值仿真（CAE）与理论解对标</h1><ul>
+<li>结论：<strong>通过</strong></li>
+<li>求解器：<code>backend/app/cae/fem.py</code>（仅依赖 numpy，无 Gmsh/CalculiX，离线可跑）</li>
+</ul>
+<table>
+<tr><th>门禁</th><th>结果</th><th>证据</th></tr>
+<tr><td>E1 梁-端部集中载荷对标解析解</td><td>✅</td><td>δ=0.16383mm(解析 0.16383) 误差 0.0000% / M=6000.0N·mm 误差 0.0000% / σ=28.125MPa</td></tr>
+<tr><td>E2 梁-均布载荷对标解析解</td><td>✅</td><td>δ=0.07373mm(解析 0.07373) 误差 0.0000%</td></tr>
+<tr><td>E3 梁网格无关性（200 单元）</td><td>✅</td><td>200 单元误差 0.0000%（Hermite 单元对等截面梁本应精确）</td></tr>
+<tr><td>E4 带孔板 Kt 落在理论区间</td><td>✅</td><td>Kt=3.128（理论 3.0，误差 4.25%，网格 1152 单元，σ∞=2.4MPa）</td></tr>
+<tr><td>E5 网格收敛性（粗→细单调逼近 3.0）</td><td>✅</td><td>Kt: 2.377 → 3.128 → 3.121（理论 3.0）</td></tr>
+<tr><td>E6 CAE Harness 三种裁决</td><td>✅</td><td>合规=passed / 超许用应力=failed / 未对标=failed</td></tr>
+<tr><td>E7 工作流接入 CAE 并到达审批门</td><td>✅</td><td>节点=[&#x27;n1_cad_build&#x27;, &#x27;n2_cad_harness&#x27;, &#x27;n3_mesh_dfm&#x27;, &#x27;n3b_cae&#x27;, &#x27;n3c_cae_harness&#x27;, &#x27;n4_human_approval&#x27;] / Kt=3.128 / CAE Harness=passed / run=waiting_approval</td></tr>
+</table>
+<h2>与理论解对标明细</h2>
+<table>
+<tr><th>算例</th><th>数值解</th><th>理论解</th><th>误差</th></tr>
+<tr><td>悬臂梁 端部 50N</td><td>δ=0.16383 mm</td><td>δ=0.16383 mm</td><td>0.0000%</td></tr>
+<tr><td>悬臂梁 200 单元</td><td>δ=0.28767 mm</td><td>δ=0.28767 mm</td><td>0.0000%</td></tr>
+<tr><td>带孔板 Kt（粗 32×4）</td><td>2.377</td><td>3.0</td><td>20.78%</td></tr>
+<tr><td>带孔板 Kt（中 48×12）</td><td>3.128</td><td>3.0</td><td>4.25%</td></tr>
+<tr><td>带孔板 Kt（细 64×16）</td><td>3.121</td><td>3.0</td><td>4.04%</td></tr>
+</table>
+<blockquote>说明：CST 常应变三角形偏刚，孔边应力略高于理论值；加密后收敛于 3.0 附近。</blockquote>
+<blockquote>梁单元为 Hermite 三次形函数，对等截面 Euler-Bernoulli 梁为精确解，故误差为 0。</blockquote><div class="pagebreak"></div><h1>M5 · 知识资产平台</h1><ul>
+<li>结论：<strong>通过</strong></li>
+<li>检索栈：BM25(k1=1.5,b=0.75) + 向量（hashing-ngram-512）+ RRF 融合 + RBAC 过滤 + 条款级引用</li>
+</ul>
+<table>
+<tr><th>门禁</th><th>结果</th><th>证据</th></tr>
+<tr><td>K1 文档入库与切块</td><td>✅</td><td>7 份文档 / 13 个条款块 / 向量模型 hashing-ngram-512</td></tr>
+<tr><td>K2 BM25 单路检索</td><td>✅</td><td>top1=内部注塑工艺规范_v2.4.pdf / 片段=我司二号车间海天注塑机加工 PC+ABS 材质工业外壳时，凡外壳最大跨度超过 150…</td></tr>
+<tr><td>K3 向量单路检索</td><td>✅</td><td>top5 文档=[&#x27;spec_injection_v24&#x27;]（hashing 向量无语义能力，仅保证确定性）</td></tr>
+<tr><td>K4 混合 RRF 融合</td><td>✅</td><td>top1=内部注塑工艺规范_v2.4.pdf / 命中通道=[&#x27;bm25&#x27;, &#x27;vector&#x27;] / score=0.032787</td></tr>
+<tr><td>K5 引用溯源完整</td><td>✅</td><td>1 条命中均带 文档/章节/原文/条款；示例条款=[&#x27;150mm&#x27;, &#x27;2.4mm&#x27;, &#x27;2.0mm&#x27;, &#x27;1.44mm&#x27;, &#x27;1.8°&#x27;]</td></tr>
+<tr><td>K6 RBAC 角色隔离</td><td>✅</td><td>可见文档数 viewer=1/engineer=6/admin=7；viewer 查工艺规范=False（应 False）/ engineer 查规范=True（应 True）/ engineer 查成本=False（应 False）/ admin 查成本=True（应 True）</td></tr>
+<tr><td>K7 无证据即拒答</td><td>✅</td><td>无关查询 found=False（max cos=0.0585）/闲聊 found=False（max cos=0.1209）—— Agent 据此输出 needs_input</td></tr>
+<tr><td>K8 切块与分词质量</td><td>✅</td><td>切块=[&#x27;壁厚必须设定为 2.4mm。加强筋不超过 1.44mm。&#x27;, &#x27;拔模斜度 ≥ 1.8°。&#x27;] / 分词含中文二元组=True / 条款抽取=[&#x27;2.4mm&#x27;, &#x27;1.44mm&#x27;, &#x27;1.8°&#x27;]</td></tr>
+<tr><td>K9 知识库页签实测（检索 + 引用展示）</td><td>✅</td><td>结果含规范名与 2.4mm 条款</td></tr>
+<tr><td>K10 RBAC 在界面生效（访客→无证据提示）</td><td>✅</td><td>访客角色被 RBAC 拦截，界面提示 Agent 应输出 needs_input</td></tr>
+</table>
+<h2>知识库清单</h2>
+<table>
+<tr><th>文档</th><th>来源类型</th><th>版本</th><th>可见角色</th><th>条款块</th></tr>
+<tr><td>内部注塑工艺规范_v2.4.pdf</td><td>pdf</td><td>v2.4</td><td>engineer/admin</td><td>2</td></tr>
+<tr><td>钣金折弯展开标准_2025.docx</td><td>docx</td><td>2025</td><td>engineer/admin</td><td>1</td></tr>
+<tr><td>工程文件_Phase2_产品设计任务书.docx</td><td>docx</td><td>v1.0</td><td>viewer/engineer/admin</td><td>2</td></tr>
+<tr><td>工程文件_Phase5_CAD铁律.docx</td><td>docx</td><td>v1.0</td><td>engineer/admin</td><td>2</td></tr>
+<tr><td>工程文件_Phase6_制图规范.docx</td><td>docx</td><td>v1.0</td><td>engineer/admin</td><td>3</td></tr>
+<tr><td>工程文件_Phase7_DFM双层评判.docx</td><td>docx</td><td>v1.0</td><td>engineer/admin</td><td>2</td></tr>
+<tr><td>供应商报价与成本基线_2026Q3（仅管理者可见）</td><td>xlsx</td><td>2026Q3</td><td>admin</td><td>1</td></tr>
+</table>
+<h2>示例检索结果（engineer / 混合检索）</h2>
+<pre>
+[
+  {
+    &quot;chunk_id&quot;: &quot;spec_injection_v24#1&quot;,
+    &quot;doc_id&quot;: &quot;spec_injection_v24&quot;,
+    &quot;doc_title&quot;: &quot;内部注塑工艺规范_v2.4.pdf&quot;,
+    &quot;section&quot;: &quot;§1&quot;,
+    &quot;quote&quot;: &quot;我司二号车间海天注塑机加工 PC+ABS 材质工业外壳时，凡外壳最大跨度超过 150mm 的产品，标准名义壁厚必须设定为 2.4mm（严禁采用通用 2.0mm）。内侧加强筋厚度不得超过名义壁厚的 60%（即 1.44mm），否则极易产生表面缩水纹。拔模斜度统一要求 ≥ 1.8°。&quot;,
+    &quot;clauses&quot;: [
+      &quot;150mm&quot;,
+      &quot;2.4mm&quot;,
+      &quot;2.0mm&quot;,
+      &quot;1.44mm&quot;,
+      &quot;1.8°&quot;
+    ],
+    &quot;score&quot;: 0.032787,
+    &quot;channels&quot;: [
+      &quot;bm25&quot;,
+      &quot;vector&quot;
+    ]
+  }
+]
+</pre>
+<blockquote>说明：默认向量为确定性 hashing（无模型、离线可用），语义能力需 bge-m3；</blockquote>
+<blockquote>检索结果一律带「文档 › 章节 › 原文 › 关键条款」，供 Harness 引用与前端展示。</blockquote><div class="pagebreak"></div><h1>M6 · 参赛材料构建（申报书）</h1><ul>
+<li>结论：<strong>通过</strong>（申报书已按官方模板填写完成并通过 18 项校验）</li>
+<li>产物：<code>docs/申报书_HyperDesign2.0.docx</code>（96.5 KB，18 页）</li>
+<li>做法：<strong>在官方模板上就地填写</strong>，保留封面、填写说明、标题层级、页眉页脚与表格骨架；</li>
+</ul>
+<p>正文统一 中文仿宋_GB2312 + 西文 Times New Roman 五号（10.5pt），首行缩进 2 字符、1.5 倍行距，小标题黑体加粗。</p>
+<h2>一、模板合规校验</h2>
+<table>
+<tr><th>检查项</th><th>结果</th><th>证据</th></tr>
+<tr><td>封面与&quot;填写说明&quot;保留</td><td>✅</td><td>模板原文未被改写</td></tr>
+<tr><td>页眉/页脚/页码保留</td><td>✅</td><td>渲染页眉&quot;第三届&#x27;兴智杯&#x27;全国人工智能创新应用大赛&quot;</td></tr>
+<tr><td>表格数量</td><td>✅</td><td>5 张（原 3 张 + 新增 2 张数据表）</td></tr>
+<tr><td>项目名称/主题赛/赛题/团队/日期</td><td>✅</td><td>已填（团队名称与日期可后续替换）</td></tr>
+<tr><td>核心技术多选</td><td>✅</td><td>☑多模态、☑深度学习、☑知识图谱、☑其他（多智能体协同、参数化 CAD 生成、物理 DFM 校验、本地模型自进化）</td></tr>
+<tr><td>应用发展阶段单选</td><td>✅</td><td>☑应用示范阶段</td></tr>
+<tr><td>九个正文小节</td><td>✅</td><td>背景及意义 / 主要场景及功能 / 实现方案 / 项目创新点 / 市场分析 / 商业模式分析 / 应用情况 / 社会效益 / 附录</td></tr>
+<tr><td>字数</td><td>✅</td><td>中文 7,038 字（要求 ≤30,000 字）</td></tr>
+<tr><td>外文首现全称+缩写</td><td>✅</td><td>AIGC、DFM、LLM、CAD、B-Rep、API、SSE、FEM、RAG、QLoRA、DPO、STEP、DXF、PDF、DAG、RBAC、WSL 等</td></tr>
+<tr><td>引用注明出处</td><td>✅</td><td>附录列 9 组参考文献（arXiv 编号 + 国标 + 软件文档）</td></tr>
+<tr><td>避免宣传色彩</td><td>✅</td><td>以实测数据与工程约束表述，未使用营销化措辞</td></tr>
+</table>
+<h2>二、四维评分的材料落点</h2>
+<table>
+<tr><th>维度（权重）</th><th>在申报书中的落点</th></tr>
+<tr><td>先进性 25%</td><td>实现方案「关键技术」8 项（几何中间表示、准入规则引擎、工作流事件流、生成式链路、物理 DFM、数值仿真、知识资产、本地进化）+ 创新点 6 条</td></tr>
+<tr><td>场景价值 30%</td><td>主要场景及功能 4 场景 + 表 1 场景交付对照；应用情况 + 表 2 端到端实测 10 项指标</td></tr>
+<tr><td>落地可行性 25%</td><td>实现方案「软硬件部署」（单机 16GB、离线、零构建前端、无云端依赖）+「数据与合规」（RBAC、审计、路径加固、允许列表）+ 市场分析「规模化落地可行性」4 条</td></tr>
+<tr><td>完整性表达 20%</td><td>严格按模板 9 小节 + 2 张数据表 + 附录六份门禁报告 + 参考文献；仿宋GB2312 五号排版</td></tr>
+</table>
+<h2>三、构建中修掉的真实缺陷</h2>
+<p>1. <strong>西文字体错误导致英文渲染成希腊字母</strong>：最初把 <code>w:ascii</code> 也设为 仿宋_GB2312，渲染时 <code>AIGC</code>→<code>ΑΓΓΧ</code>、<code>CAD</code>→<code>ΣΑΔ</code>。</p>
+<p>修正为 中文 eastAsia=仿宋_GB2312、西文 ascii/hAnsi/cs=Times New Roman（中文公文标准做法），渲染后英文与缩写完全正确。</p>
+<p>2. <strong>表格单元格去重误判</strong>：<code>id(cell._tc)</code> 会因 lxml 代理对象被回收而复用，导致不同单元格被判为同一格，</p>
+<p>使&quot;核心技术&quot;勾选漏掉两项。改为用集合持有元素引用的方式去重后恢复正常。</p>
+<p>3. <strong>外文全称不足</strong>：初稿缺 RAG 与 FEM 的全称展开，已补为「检索增强生成，Retrieval-Augmented Generation，RAG」</p>
+<p>与「有限元（Finite Element Method，FEM）」。</p>
+<h2>四、待补材料（下一轮）</h2>
+<ul>
+<li>作品介绍 PDF：从 1.0 版升级到 2.0（补 Studio、CAE、知识资产、工作流、Six 大门禁）。</li>
+<li>演示视频：重录 2.0 版（含 Studio 实操、CAE 结果、知识检索与拒答、守门员）。</li>
+<li>代码仓库：<code>D:\hyperdesign2</code> 初始化并推送（含示例数据、规则包、门禁脚本）。</li>
+<li>团队名称与填报日期：需参赛者本人确认后替换占位内容。</li>
+</ul><div class="pagebreak"></div><h1>M7 · 设计空间可行性与跨产品族复用</h1><ul>
+<li>结论：<strong>通过</strong></li>
+<li>模块：<code>backend/app/cadir/feasibility.py</code>（纯解析，不依赖几何内核）</li>
+</ul>
+<table>
+<tr><th>门禁</th><th>结果</th><th>证据</th></tr>
+<tr><td>F1 不可行判定（R=3.0）</td><td>✅</td><td>r_top=-0.8154mm（要求 ≥0.2），违反项=[&#x27;顶面内角半径&#x27;]，提示=需 R ≥ 4.02 mm（当前 3.00 mm）</td></tr>
+<tr><td>F2 自动修复（最小改动）</td><td>✅</td><td>3.0mm → 4.1mm；理由：顶面内角半径 -0.8154mm &lt; 0.2mm；按 R ≥ H·tan d + wall/cos d + 0.2 反解…</td></tr>
+<tr><td>F3 真实内核复现（R=3.0 建模失败）</td><td>✅</td><td>ok=None，错误=CAD_FEATURE_FAILED: f2_shell -&gt; ValueError: cavity_cut: 顶部内角半径只有 -0.740mm —— 外角 R3.0 在拔模 1.8°/高度 45.0mm 下已不足以维</td></tr>
+<tr><td>F4 修复后重建并通过准入</td><td>✅</td><td>R=4.1mm → 体积 67585.318mm³，包络 {&#x27;x&#x27;: 120.0, &#x27;y&#x27;: 80.0, &#x27;z&#x27;: 45.0}，拔模 1.8°，准入=passed</td></tr>
+<tr><td>F5 壁厚不足被判定</td><td>✅</td><td>wall=2.0mm → 违反；依据：企业注塑规范：跨度&gt;150mm 件名义壁厚 2.4mm，严禁 2.0mm…</td></tr>
+<tr><td>F6 拔模不足被判定</td><td>✅</td><td>draft=0.5° → 违反项=[&#x27;拔模角下限&#x27;]</td></tr>
+<tr><td>F7 合规参数判可行（无误报）</td><td>✅</td><td>R=4.5/wall=2.4/draft=1.8 → feasible=True，r_top=0.6846mm</td></tr>
+<tr><td>F8 同引擎构建第二产品族（CNC 支架）</td><td>✅</td><td>体积 18789.457mm³，包络 {&#x27;x&#x27;: 80.0, &#x27;y&#x27;: 40.0, &#x27;z&#x27;: 44.0}，实体数 1</td></tr>
+<tr><td>F9 换产品族只换规则包即通过</td><td>✅</td><td>支架规则包 bracket.cad-integrity 判定=passed（无拔模要求，因为是铣削件）</td></tr>
+<tr><td>F10 工艺错配会被规则包拦住（反证）</td><td>✅</td><td>用注塑规则包判铣削支架=failed，阻断项=[&#x27;cad.draft.min&#x27;, &#x27;cad.draft.vertical_faces&#x27;]</td></tr>
+</table>
+<h2>约束表（R=3.0 的判定过程）</h2>
+<table>
+<tr><th>约束</th><th>要求</th><th>实测</th><th>结论</th><th>公式</th></tr>
+<tr><td>顶面内角半径</td><td>≥ 0.2 mm</td><td>-0.8154</td><td><strong>违反</strong></td><td>r_top = R − H·tan(d) − wall/cos(d)</td></tr>
+<tr><td>顶面平台宽度</td><td>≥ 2.0 mm</td><td>114.0</td><td>通过</td><td>flat_top = (L − 2H·tan d) − 2(R − H·tan d)</td></tr>
+<tr><td>名义壁厚下限</td><td>≥ 2.4 mm</td><td>2.4</td><td>通过</td><td>企业注塑规范：跨度&gt;150mm 件名义壁厚 2.4mm，严禁 2.0mm</td></tr>
+<tr><td>壁厚上限</td><td>≤ 4.5 mm</td><td>2.4</td><td>通过</td><td>&gt;4.5mm 为肥厚积料区（缩水纹风险）</td></tr>
+<tr><td>拔模角下限</td><td>≥ 1.8°</td><td>1.8</td><td>通过</td><td>企业注塑规范：拔模斜度统一要求 ≥1.8°</td></tr>
+<tr><td>高厚比</td><td>≤ 20</td><td>18.75</td><td>通过</td><td>H/wall 过大时深腔抽芯困难</td></tr>
+</table>
+<h2>自动修复步骤</h2>
+<table>
+<tr><th>参数</th><th>原值</th><th>建议值</th><th>理由</th></tr>
+<tr><td>corner_r_mm</td><td>3.0</td><td>4.1</td><td>顶面内角半径 -0.8154mm &lt; 0.2mm；按 R ≥ H·tan d + wall/cos d + 0.2 反解得 4.10mm，取 4.10mm（同时受顶面平台约束 ≤59.00mm）</td></tr>
+</table>
+<h2>修复后重建结果</h2>
+<pre>
+{
+  &quot;is_valid&quot;: true,
+  &quot;volume_mm3&quot;: 67585.318,
+  &quot;surface_area_mm2&quot;: 57643.991,
+  &quot;bbox_mm&quot;: {
+    &quot;x&quot;: 120.0,
+    &quot;y&quot;: 80.0,
+    &quot;z&quot;: 45.0
+  },
+  &quot;bounds_min&quot;: [
+    -60.0,
+    -40.0,
+    0.0
+  ],
+  &quot;bounds_max&quot;: [
+    60.0,
+    40.0,
+    45.0
+  ],
+  &quot;z_min&quot;: 0.0,
+  &quot;raw_boundbox_z&quot;: [
+    -1.0,
+    45.0
+  ],
+  &quot;solids&quot;: 1,
+  &quot;shells&quot;: 1,
+  &quot;faces&quot;: 220,
+  &quot;edges&quot;: 627,
+  &quot;vertices&quot;: 418,
+  &quot;center_of_mass&quot;: [
+    -0.0536,
+    -0.0,
+    28.4371
+  ],
+  &quot;dfm&quot;: {
+    &quot;measured&quot;: true,
+    &quot;planar_side_faces&quot;: 8,
+    &quot;min_draft_deg&quot;: 1.8,
+    &quot;median_draft_deg&quot;: 1.8,
+    &quot;vertical_face_count&quot;: 0,
+    &quot;pull_direction&quot;: &quot;+Z&quot;
+  }
+}
+</pre>
+<blockquote>意义：设计不可行时，引擎不是只抛错误，而是给出<strong>可执行的参数修改建议</strong>并自动重建复验，</blockquote>
+<blockquote>把「工程师反复试错」变成「一次判定 + 一次修复」。</blockquote><div class="pagebreak"></div><h1>M9 · 平台层端到端性能</h1><ul>
+<li>结论：<strong>通过</strong>（平台层端到端稳定在秒级，波动 &lt; 5%）</li>
+<li>方法：连续 3 次运行 6 节点工作流，取中位数（<code>scripts/m9_perf.py</code> 可复跑）</li>
+<li>结论：平台层端到端 <strong>2430.1 ms</strong>，3 次波动 <strong>3.7%</strong></li>
+</ul>
+<table>
+<tr><th>节点</th><th>内容</th><th>中位耗时 (ms)</th></tr>
+<tr><td>n1_cad_build</td><td>IR 构建（几何内核建模 + 校验）</td><td>2108.3</td></tr>
+<tr><td>n2_cad_harness</td><td>CAD 几何准入（10 条规则）</td><td>0.0</td></tr>
+<tr><td>n3_mesh_dfm</td><td>网格物理准入（6 条规则）</td><td>0.0</td></tr>
+<tr><td>n3b_cae</td><td>CAE 有限元（1152 单元）</td><td>304.0</td></tr>
+<tr><td>n3c_cae_harness</td><td>CAE 准入（3 条规则）</td><td>0.0</td></tr>
+</table>
+<p>合计（中位）：<strong>2430.1 ms</strong></p>
+<h2>与 1.0 的对照</h2>
+<table>
+<tr><th>环节</th><th>1.0</th><th>2.0</th></tr>
+<tr><td>参数化建模 + 几何校验</td><td>465.8s（LLM 生成代码后执行，每次重跑）</td><td>2.11s（确定性执行）+ 准入 0ms</td></tr>
+<tr><td>工艺检索与铁律校验</td><td>75.9s（整段大模型推理）</td><td>0.02s 检索 + 毫秒级规则判定</td></tr>
+</table>
+<blockquote>说明：本表只测量 2.0 平台层；概念图与三维重建属 1.0 生成式能力层，需 GPU 环境，不在本脚本范围。</blockquote>
+<blockquote>1.0 的数字取自 <code>progress.log</code> 时间戳，可回溯核对。</blockquote>
+</body></html>

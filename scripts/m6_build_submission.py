@@ -86,22 +86,27 @@ def _insert_after(anchor_p, text, *, heading=False):
     return p
 
 
-def _add_table_after(anchor_p, spec, doc):
+def _anchor_el(anchor):
+    """接受 Paragraph 或 lxml 元素，统一取出锚点元素。"""
+    return anchor._p if hasattr(anchor, "_p") else anchor
+
+
+def _add_table_after(anchor, spec, doc):
+    """在锚点后插入「表题 + 表格」，返回表格元素（作为下一次插入的锚点）。"""
+    anchor_el = _anchor_el(anchor)
     header, rows = spec["header"], spec["rows"]
-    tbl = doc.add_table(rows=1 + len(rows), cols=len(header))
-    tbl.style = "Table Grid"
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    # 表题
-    cap_el = copy.deepcopy(anchor_p._p)
-    anchor_p._p.addnext(cap_el)
-    from docx.text.paragraph import Paragraph
-    cap = Paragraph(cap_el, doc)
-    for r in list(cap.runs):
-        r._element.getparent().remove(r._element)
+
+    cap = doc.add_paragraph()          # 先追加到文末，再移动到锚点后
+    anchor_el.addnext(cap._p)
     run = cap.add_run(spec["title"])
     _set_run(run, font=HEAD_FONT, size=9.5, bold=True)
     _fmt_para(cap, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
+
+    tbl = doc.add_table(rows=1 + len(rows), cols=len(header))
+    tbl.style = "Table Grid"
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
     cap._p.addnext(tbl._tbl)
+
     # 表头：加 tblHeader 使跨页时自动重复
     for j, h in enumerate(header):
         cell = tbl.rows[0].cells[j]
@@ -123,7 +128,7 @@ def _add_table_after(anchor_p, spec, doc):
             run = p.add_run(str(val))
             _set_run(run, font=BODY_FONT, size=9)
             _fmt_para(p, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.LEFT)
-    return tbl
+    return tbl._tbl
 
 
 def _shade(cell, hex_color):
@@ -135,30 +140,52 @@ def _shade(cell, hex_color):
     tcPr.append(shd)
 
 
-def _add_image_after(anchor_p, img_path, caption, doc, width_cm=15.2):
-    """在锚点后插入一张配图 + 图注（图注在图下方，9 磅居中）。"""
-    from docx.text.paragraph import Paragraph
+def _add_image_after(anchor, img_path, caption, doc, width_cm=15.2):
+    """在锚点后插入一张配图 + 图注，返回图注元素（作为下一次插入的锚点）。"""
+    anchor_el = _anchor_el(anchor)
     p = Path(img_path)
     if not p.exists():
-        return anchor_p
-    # 图片段落
-    img_el = copy.deepcopy(anchor_p._p)
-    anchor_p._p.addnext(img_el)
-    img_par = Paragraph(img_el, doc)
-    for r in list(img_par.runs):
-        r._element.getparent().remove(r._element)
+        return anchor_el
+    img_par = doc.add_paragraph()
+    anchor_el.addnext(img_par._p)
     img_par.add_run().add_picture(str(p), width=Cm(width_cm))
     _fmt_para(img_par, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=2)
-    # 图注
-    cap_el = copy.deepcopy(anchor_p._p)
-    img_par._p.addnext(cap_el)
-    cap = Paragraph(cap_el, doc)
-    for r in list(cap.runs):
-        r._element.getparent().remove(r._element)
+
+    cap = doc.add_paragraph()
+    img_par._p.addnext(cap._p)
     run = cap.add_run(caption)
     _set_run(run, font=BODY_FONT, size=9)
     _fmt_para(cap, indent_chars=0, spacing=1.0, align=WD_ALIGN_PARAGRAPH.CENTER, space_after=6)
-    return cap
+    return cap._p
+
+
+def _move_chapter_breaks(doc):
+    """
+    模板把"章前分页"做成了「空段落里放分页符」，与标题叠加会产生整页空白（实测第 12 页全空）。
+    正确做法：把分页语义移到 Heading 1 自身（page_break_before），再删掉空段落。
+    """
+    from docx.text.paragraph import Paragraph
+    moved = 0
+    body = doc.element.body
+    children = list(body.iterchildren())
+    for i, child in enumerate(children):
+        if child.tag.split("}")[-1] != "p":
+            continue
+        p = Paragraph(child, doc)
+        if p.text.strip() or p.style.name.startswith("Heading"):
+            continue
+        nxt = children[i + 1] if i + 1 < len(children) else None
+        if nxt is None or nxt.tag.split("}")[-1] != "p":
+            continue
+        np = Paragraph(nxt, doc)
+        if not np.style.name.startswith("Heading 1"):
+            continue
+        has_break = any(b.get(qn("w:type")) == "page" for b in child.findall(".//" + qn("w:br")))
+        if has_break:
+            np.paragraph_format.page_break_before = True
+        body.remove(child)
+        moved += 1
+    return moved
 
 
 def _set_cell_text(cell, text, *, font=BODY_FONT, size=10.5, bold=False):
@@ -250,13 +277,15 @@ def build():
         specs = C.TABLES.get(anchor_idx)
         if specs:
             for spec in (specs if isinstance(specs, list) else [specs]):
-                _add_table_after(last, spec, doc)
-                last = doc.paragraphs[-1] if False else last   # 表后仍以正文段为锚点
+                # 关键：以「上一次插入的表格元素」为新锚点，保证多表顺序与定义一致
+                last = _add_table_after(last, spec, doc)
 
         for img_path, caption in C.IMAGES.get(anchor_idx, []):
             last = _add_image_after(last, img_path, caption, doc)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    moved = _move_chapter_breaks(doc)
+    print(f"章节分页规范化：{moved} 处（分页语义移至标题）")
     doc.save(str(OUT))
     return OUT
 
@@ -274,7 +303,7 @@ def verify(path: Path):
 
     checks = []
     checks.append(("封面与填写说明保留", "填 写 说 明" in text and "第三届" in text))
-    checks.append(("表格数量仍为 6（3 原表 + 3 数据表）", len(doc.tables) == 6))
+    checks.append(("表格数量仍为 7（3 原表 + 4 数据表）", len(doc.tables) == 7))
     checks.append(("附录配图 ≥3 张", len(doc.inline_shapes) >= 3))
     checks.append(("项目名称已填", C.PROJECT_NAME[:12] in doc.tables[0].rows[0].cells[1].text))
     checks.append(("主题赛已填", C.TRACK in doc.tables[0].rows[1].cells[1].text))
