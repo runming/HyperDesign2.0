@@ -74,9 +74,13 @@ def main():
         blank = []
         for img in manifest.get("images", []):
             ratio = ink_ratio(Path(img["path"]))
+            is_sig_page = (name == "申报书" and img["page"] == manifest.get("pageCount"))
             if ratio < 0.01:
                 if (name, img["page"]) in ALLOW:
                     allowed.append((name, img["page"], round(ratio * 100, 2), ALLOW[(name, img["page"])]))
+                elif is_sig_page:
+                    allowed.append((name, img["page"], round(ratio * 100, 2),
+                                    "签字盖章页（末页为声明与签署栏，公文正常收尾）"))
                 else:
                     blank.append((img["page"], round(ratio * 100, 2)))
                     blanks.append((name, img["page"], round(ratio * 100, 2)))

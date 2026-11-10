@@ -238,10 +238,11 @@ def build():
         if cell.text.strip() == "□应用示范阶段":
             _set_cell_text(cell, "☑应用示范阶段", bold=True)
 
-    # ---- 应用行业及场景（Heading 2 后插入）----
+    # ---- 应用行业及场景（Heading 2 后插入：行业场景 + 项目简介）----
     paras = doc.paragraphs
     anchor = next(p for p in paras if p.text.strip().startswith("应用行业及场景"))
-    _insert_after(anchor, C.INDUSTRY_SCENE)
+    p1 = _insert_after(anchor, C.INDUSTRY_SCENE)
+    _insert_after(p1, C.PROJECT_BRIEF)
 
     # ---- 各小节正文 ----
     for anchor_idx, lines in sorted(C.SECTIONS.items()):
